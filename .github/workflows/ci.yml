@@ -1,0 +1,29 @@
+# Roda a cada push e Pull Request: confere estilo (Ruff) e testes (pytest).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  qualidade:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Instalar dependências
+        run: uv sync
+
+      - name: Ruff (erros e estilo)
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+
+      - name: Testes
+        env:
+          SDL_VIDEODRIVER: dummy
+          SDL_AUDIODRIVER: dummy
+        run: uv run pytest -v

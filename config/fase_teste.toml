@@ -1,0 +1,13 @@
+# Fase de teste da Parte 1. Nas próximas partes, as fases virão do Tiled (assets/mapas/).
+inicio = [80, 380]               # onde a Angel começa e volta ao cair
+
+# Cada plataforma: [x, y, largura, altura]
+plataformas = [
+    [0, 500, 560, 40],           # chão (esquerda)
+    [680, 500, 280, 40],         # chão (direita): o espaço entre os dois é um buraco
+    [180, 400, 160, 20],
+    [420, 320, 140, 20],
+    [640, 240, 160, 20],
+    [820, 380, 140, 20],
+    [20, 310, 120, 20],          # alcançável a partir da plataforma de y=400
+]
