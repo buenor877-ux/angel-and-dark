@@ -1,0 +1,15 @@
+# Gerado pelo jogo (não é feito à mão)
+saves/
+logs/
+build/
+
+# Python e ferramentas
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# Sistema
+Thumbs.db
+desktop.ini

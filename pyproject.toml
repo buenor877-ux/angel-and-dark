@@ -1,0 +1,26 @@
+[project]
+name = "angel-and-dark"
+version = "0.1.0"
+description = "Jogo de plataforma 2D com Angel (luz) e Dark (sombra)."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pygame-ce>=2.5",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.8",
+    "pytest>=8",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+# E/F: erros básicos | I: ordem dos imports | B: bugs comuns | UP: Python moderno
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
