@@ -27,6 +27,16 @@ uv run ruff format .     # arruma a formatação
 uv run pytest            # roda os testes
 ```
 
+## Versão para navegador (itch.io)
+```
+uv run python scripts/montar_web.py            # monta build/angel-and-dark/build/web.zip
+uv run python scripts/montar_web.py --servir   # monta e abre em http://localhost:8000
+```
+- Na página, **clique uma vez** antes de jogar (o navegador só libera teclado e som depois de um clique).
+- Para ver as mensagens do Python, abra `http://localhost:8000/#debug`.
+- O `web.zip` é o arquivo que vai para o itch.io.
+- Só `main.py`, `jogo/`, `assets/` e `config/` entram no pacote (lista em `scripts/montar_web.py`).
+
 ## Estrutura
 A organização das pastas e o motivo de cada uma estão em [docs/08_estrutura_final.md](docs/08_estrutura_final.md).
 Os números do jogo (velocidade, pulo, gravidade) ficam em `config/` e podem ser ajustados sem mexer no código.

@@ -1,5 +1,7 @@
 """Tela de escolha de personagem: Angel ou Dark."""
 
+import sys
+
 import pygame
 
 from jogo.cenas.cena import Cena
@@ -7,6 +9,11 @@ from jogo.personagens.angel import Angel
 from jogo.personagens.dark import Dark
 
 OPCOES = [Angel, Dark]
+
+# No navegador não existe "fechar o programa", então a dica do Esc some.
+AJUDA = "Setas/A D: escolher   Enter/Espaço: jogar"
+if sys.platform != "emscripten":
+    AJUDA += "   Esc: sair"
 
 TECLAS_ESQUERDA = (pygame.K_LEFT, pygame.K_a)
 TECLAS_DIREITA = (pygame.K_RIGHT, pygame.K_d)
@@ -58,7 +65,7 @@ class CenaEscolha(Cena):
         self._texto(
             tela,
             self.fonte,
-            "Setas/A D: escolher   Enter/Espaço: jogar   Esc: sair",
+            AJUDA,
             (largura // 2, altura - 50),
         )
 
