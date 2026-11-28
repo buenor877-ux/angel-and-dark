@@ -3,7 +3,7 @@
 A fase não sabe de onde veio (Tiled, dicionário de teste). Quem cria é o carregador_fases.py.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import pygame
 
@@ -22,6 +22,13 @@ class LugarInimigo:
 
     tipo: str
     area: pygame.Rect
+    propriedades: dict = field(default_factory=dict)  # do Tiled (ex.: olhando = "direita")
+
+
+def _lugar_inimigo(dados: list) -> LugarInimigo:
+    """["planta", x, y, largura, altura] e, se quiser, as propriedades no fim."""
+    propriedades = dados[5] if len(dados) > 5 else {}
+    return LugarInimigo(dados[0], pygame.Rect(*dados[1:5]), propriedades)
 
 
 class Checkpoint:
@@ -87,7 +94,7 @@ class Fase:
             [pygame.Rect(*p) for p in dados["plataformas"]],
             perigos=[pygame.Rect(*p) for p in dados.get("perigos", [])],
             checkpoints=[Checkpoint(pygame.Rect(*c)) for c in dados.get("checkpoints", [])],
-            inimigos=[LugarInimigo(i[0], pygame.Rect(*i[1:])) for i in dados.get("inimigos", [])],
+            inimigos=[_lugar_inimigo(i) for i in dados.get("inimigos", [])],
         )
 
     @property

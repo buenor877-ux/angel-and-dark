@@ -18,16 +18,18 @@ def carregar_config(chave: str) -> dict:
 class Inimigo:
     chave = ""  # nome do bloco em config/inimigos.toml
 
-    def __init__(self, cfg: dict, area: pygame.Rect):
+    def __init__(self, cfg: dict, area: pygame.Rect, propriedades: dict | None = None):
         self.cfg = cfg
         self.area = pygame.Rect(area)  # território: não sai daqui
+        # Propriedades do objeto no Tiled (ex.: olhando = "direita"). Opcional.
+        self.propriedades = dict(propriedades or {})
         self.cor = tuple(cfg["cor"])
         self.rect = pygame.Rect(0, 0, cfg["largura"], cfg["altura"])
         self.reiniciar()
 
     @classmethod
-    def criar(cls, area: pygame.Rect) -> "Inimigo":
-        return cls(carregar_config(cls.chave), area)
+    def criar(cls, area: pygame.Rect, propriedades: dict | None = None) -> "Inimigo":
+        return cls(carregar_config(cls.chave), area, propriedades)
 
     def reiniciar(self) -> None:
         """Volta para o meio do território, vivo e olhando para a esquerda."""
@@ -35,11 +37,16 @@ class Inimigo:
         self.x, self.y = float(self.rect.x), float(self.rect.y)
         self.vel_x = 0.0
         self.vel_y = 0.0
-        self.olhando = -1  # 1 = direita, -1 = esquerda (o jogador vem da esquerda)
+        # 1 = direita, -1 = esquerda. O padrão é a esquerda, porque o jogador vem de lá;
+        # no Tiled dá para trocar com a propriedade olhando = "direita".
+        self.olhando = 1 if self.propriedades.get("olhando") == "direita" else -1
         self.no_chao = False
         self.bateu = False  # bateu em parede ou no fim do território neste quadro
         self.tempo_derrotado = 0.0
         self.derrotado = False
+        # Projéteis que o inimigo acabou de atirar. A cena recolhe e cuida deles
+        # (assim a semente continua voando mesmo depois que a planta é derrotada).
+        self.disparos: list = []
 
     @property
     def vivo(self) -> bool:
@@ -158,10 +165,15 @@ class Inimigo:
             rect = pygame.Rect(rect.x, rect.bottom - rect.height // 3, rect.width, rect.height // 3)
             pygame.draw.rect(tela, self.cor, rect)
             return
-        rect = rect.move(self.deslocamento_desenho(), 0)
+        rect = self.forma_desenho(rect)
         pygame.draw.rect(tela, self.cor_atual(), rect)
-        # "Presa" clara do lado em que olha: mostra para onde ele vai.
-        lado = rect.right - 8 if self.olhando > 0 else rect.left
-        pygame.draw.rect(tela, (240, 230, 210), (lado, rect.bottom - 12, 8, 6))
+        self.desenhar_detalhes(tela, rect)
+
+    def forma_desenho(self, rect: pygame.Rect) -> pygame.Rect:
+        """Onde e de que tamanho desenhar (tremida, inchaço). O corpo de verdade não muda."""
+        return rect.move(self.deslocamento_desenho(), 0)
+
+    def desenhar_detalhes(self, tela: pygame.Surface, rect: pygame.Rect) -> None:
+        """O que vai por cima do retângulo: olho, presa, listras... Cada inimigo faz o seu."""
         olho = rect.right - 14 if self.olhando > 0 else rect.left + 10
         pygame.draw.rect(tela, (20, 20, 20), (olho, rect.top + 6, 4, 4))

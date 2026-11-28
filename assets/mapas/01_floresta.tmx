@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="160" height="30" tilewidth="18" tileheight="18" infinite="0" nextlayerid="6" nextobjectid="7">
+<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="160" height="30" tilewidth="18" tileheight="18" infinite="0" nextlayerid="6" nextobjectid="11">
  <properties>
   <property name="nome" value="Floresta 1"/>
  </properties>
@@ -159,5 +159,9 @@
   <object id="4" name="javali" x="810" y="468" width="216" height="18"/>
   <object id="5" name="javali" x="1782" y="468" width="234" height="18"/>
   <object id="6" name="javali" x="2286" y="432" width="162" height="18"/>
+  <object id="7" name="planta" x="1350" y="468" width="18" height="18"/>
+  <object id="8" name="vespa" x="1494" y="414" width="90" height="72"/>
+  <object id="9" name="planta" x="2214" y="432" width="18" height="18"/>
+  <object id="10" name="vespa" x="2538" y="414" width="90" height="72"/>
  </objectgroup>
 </map>

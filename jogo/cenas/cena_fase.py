@@ -1,4 +1,4 @@
-"""Cena de uma fase: personagem, inimigos, câmera, fundo, perigos, checkpoints, vidas e chegada."""
+"""Cena de uma fase: personagem, inimigos, projéteis, câmera, fundo, perigos, vidas e chegada."""
 
 from enum import Enum
 
@@ -36,7 +36,8 @@ class CenaFase(Cena):
         self.fase = fase or carregador_fases.carregar(nome_fase, jogo.cfg["mapa"]["escala"])
         self.personagem = classe_personagem.criar((0, 0))
         self.camera = Camera(jogo.cfg["camera"], tela, self.fase.tamanho)
-        self.inimigos = [inimigos.criar(i.tipo, i.area) for i in self.fase.inimigos]
+        self.inimigos = [inimigos.criar(i.tipo, i.area, i.propriedades) for i in self.fase.inimigos]
+        self.projeteis = []  # sementes (e depois flechas, bolas de fogo...) voando agora
         self._colocar_personagem(self.fase.inicio)
 
         cfg_fase = config.carregar("fases").get(nome_fase, {})
@@ -63,6 +64,7 @@ class CenaFase(Cena):
             self._colocar_personagem(self.fase.ponto_de_volta())
             for inimigo in self.inimigos:  # voltam todos, até os derrotados
                 inimigo.reiniciar()
+            self.projeteis.clear()  # recomeça o trecho sem semente no ar
         else:
             self.estado = EstadoFase.FIM_DE_JOGO
 
@@ -87,6 +89,7 @@ class CenaFase(Cena):
         p.atualizar(dt, ler_comandos(eventos), self.fase.solidos)
         self.fase.ativar_checkpoints(p.rect)
         self._inimigos(dt, pes_antes)
+        self._projeteis(dt)
 
         perigo = self.fase.perigo_tocado(p.rect)
         if perigo is not None:
@@ -105,6 +108,8 @@ class CenaFase(Cena):
         cfg_geral = None
         for inimigo in self.inimigos:
             inimigo.atualizar(dt, self.fase.solidos, p.rect)
+            self.projeteis.extend(inimigo.disparos)  # a cena passa a cuidar do que foi atirado
+            inimigo.disparos.clear()
             if inimigo.foi_pisado(pes_antes, p.vel_y, p.rect):
                 inimigo.derrotar()
                 cfg_geral = inimigo.cfg
@@ -112,6 +117,15 @@ class CenaFase(Cena):
                 p.levar_dano(inimigo.rect.centerx)
         if cfg_geral is not None:  # pulinho uma vez só, mesmo pisando em dois
             p.quicar(cfg_geral["quique"])
+
+    def _projeteis(self, dt: float) -> None:
+        """Move os projéteis; quem acerta o personagem tira 1 coração e some."""
+        p = self.personagem
+        for projetil in self.projeteis:
+            projetil.atualizar(dt, self.fase.solidos)
+            if projetil.acertou(p.rect):
+                p.levar_dano(projetil.rect.centerx)
+        self.projeteis = [pr for pr in self.projeteis if pr.ativo]
 
     # ---------- desenho ----------
 
@@ -123,6 +137,8 @@ class CenaFase(Cena):
         self.fase.desenhar(tela, self.cores, self.camera)
         for inimigo in self.inimigos:
             inimigo.desenhar(tela, self.camera)
+        for projetil in self.projeteis:
+            projetil.desenhar(tela, self.camera)
         self.personagem.desenhar(tela, self.camera)
         self.fase.desenhar_frente(tela, self.camera)
 

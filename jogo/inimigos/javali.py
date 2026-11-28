@@ -70,6 +70,12 @@ class Javali(Inimigo):
             return tuple(self.cfg["cor_aviso"])
         return self.cor
 
+    def desenhar_detalhes(self, tela: pygame.Surface, rect: pygame.Rect) -> None:
+        # "Presa" clara do lado em que olha: mostra para onde ele vai.
+        lado = rect.right - 8 if self.olhando > 0 else rect.left
+        pygame.draw.rect(tela, (240, 230, 210), (lado, rect.bottom - 12, 8, 6))
+        super().desenhar_detalhes(tela, rect)  # o olho
+
     def deslocamento_desenho(self) -> int:
         if self.estado != EstadoJavali.AVISO:
             return 0

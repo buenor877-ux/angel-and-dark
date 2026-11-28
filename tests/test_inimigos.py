@@ -241,21 +241,24 @@ def test_tipos_do_carregador_e_dos_inimigos_combinam():
     assert carregador_fases.TIPOS_INIMIGO == set(inimigos.TIPOS)
 
 
+def javalis(fase):
+    return [i for i in fase.inimigos if i.tipo == "javali"]
+
+
 def test_floresta_tem_3_javalis_nas_telas_2_4_e_5(floresta):
-    assert [i.tipo for i in floresta.inimigos] == ["javali"] * 3
-    telas = [i.area.centerx // TELA + 1 for i in floresta.inimigos]
+    telas = [i.area.centerx // TELA + 1 for i in javalis(floresta)]
     assert telas == [2, 4, 5]
 
 
 def test_nenhum_javali_perto_do_inicio_nem_do_checkpoint(floresta):
     pontos = [floresta.inicio[0]] + [c.rect.centerx for c in floresta.checkpoints]
-    for lugar in floresta.inimigos:
+    for lugar in javalis(floresta):
         for x in pontos:
             assert lugar.area.left - x > 200 or x - lugar.area.right > 200
 
 
 def test_cada_javali_patrulha_no_chao_sem_cair(floresta):
-    for lugar in floresta.inimigos:
+    for lugar in javalis(floresta):
         j = inimigos.criar(lugar.tipo, lugar.area)
         for _ in range(60 * 20):
             j.atualizar(DT, floresta.solidos, LONGE)

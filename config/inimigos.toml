@@ -27,3 +27,41 @@ altura_visao = 0                 # quanto acima dele ainda enxerga; 0 = só quem
 tempo_aviso = 0.6                # parado tremendo antes de investir
 tremor = 2                       # pixels de tremida durante o aviso
 tempo_descanso = 0.8             # parado, cansado, depois de investir
+
+# Planta que cospe sementes (Parte 7): parada, atira num ritmo fixo e sempre avisa antes
+# (incha e fica vermelha). Só atira com o jogador por perto. Dá para pisar nela.
+[planta]
+largura = 30
+altura = 40
+cor = [70, 150, 60]              # verde provisório
+cor_aviso = [200, 60, 40]        # vermelho = "vou atacar" (o mesmo combinado do javali)
+cor_folha = [40, 100, 40]
+tempo_espera = 1.6               # parada entre um tiro e o próximo aviso
+tempo_aviso = 0.6                # inchando e vermelha antes de cuspir
+inchaco = 4                      # quantos pixels ela cresce para cada lado no fim do aviso
+altura_boca = 16                 # a semente sai a esta distância do topo da planta
+distancia_ativacao = 560         # só acorda com o jogador a até esta distância (na horizontal)
+altura_ativacao = 300            # ...e a até esta distância na vertical
+
+# A semente é um projétil (jogo/projeteis/). Os mesmos campos vão servir para a flecha
+# do arqueiro (com gravidade) e para a bola de fogo da salamandra.
+[planta.semente]
+largura = 12
+altura = 12
+cor = [230, 200, 80]             # amarelo-palha: aparece no verde e no céu
+velocidade = 220                 # mais devagar que o jogador (260): dá para ver chegando
+velocidade_y = 0                 # 0 = sai reta (negativo sai para cima)
+gravidade = 0                    # 0 = voa reto; com gravidade, faz arco
+alcance = 360                    # some depois de voar isto (10 blocos)
+
+# Vespa em zigue-zague (Parte 7): voa dentro do território, rebatendo nas bordas,
+# sempre no mesmo desenho. Encostar machuca; pisar derrota.
+[vespa]
+largura = 28
+altura = 22
+cor = [235, 190, 40]             # amarelo provisório
+cor_listra = [30, 25, 20]
+cor_asa = [220, 235, 245]
+velocidade_x = 55                # devagar na horizontal: ~3 s para cruzar o território
+velocidade_y = 120               # sobe e desce bem mais rápido do que anda: 3 "dobras" por travessia
+velocidade_queda_derrotada = 300 # pisada, cai reto até sumir

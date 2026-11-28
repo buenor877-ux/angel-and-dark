@@ -11,8 +11,10 @@ Combinado com o mapa:
 - outras camadas de blocos → só desenho atrás do personagem (decoração);
 - camada de objetos "objetos": ponto "inicio" (pés), retângulo "chegada" e
   objetos-bloco "checkpoint" (podem ser vários) e retângulos de inimigo, com o
-  nome do tipo (ex.: "javali"). O retângulo do inimigo é o território dele:
-  o fundo do retângulo fica no chão, e a largura é até onde ele anda.
+  nome do tipo ("javali", "planta" ou "vespa"). O retângulo do inimigo é o
+  território dele: quem anda no chão fica com os pés no fundo do retângulo e vai
+  até as pontas; a vespa voa dentro dele. Propriedades do objeto (ex.: olhando =
+  "direita") chegam ao inimigo.
 """
 
 from pathlib import Path
@@ -22,7 +24,7 @@ import pytmx
 
 from jogo.fases.fase import Checkpoint, Fase, LugarInimigo
 
-TIPOS_INIMIGO = {"javali"}  # nomes de objeto que viram inimigo
+TIPOS_INIMIGO = {"javali", "planta", "vespa"}  # nomes de objeto que viram inimigo
 
 RAIZ = Path(__file__).resolve().parents[2]
 PASTA_MAPAS = RAIZ / "assets" / "mapas"
@@ -92,7 +94,7 @@ def carregar(nome: str, escala: int) -> Fase:
             img = o.image and pygame.transform.scale(o.image, (tam, tam))
             checkpoints.append(Checkpoint(_escalar(o, escala), img))
         elif o.name in TIPOS_INIMIGO:
-            inimigos.append(LugarInimigo(o.name, _escalar(o, escala)))
+            inimigos.append(LugarInimigo(o.name, _escalar(o, escala), dict(o.properties)))
     if inicio is None or chegada is None:
         raise ValueError(f"{nome}.tmx precisa dos objetos 'inicio' e 'chegada'")
 
