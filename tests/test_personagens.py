@@ -42,3 +42,14 @@ def trajeto(classe):
 def test_movimento_igual_entre_angel_e_dark():
     """Decisão de 28/11: só os poderes diferenciam os dois."""
     assert trajeto(Angel) == trajeto(Dark)
+
+
+def test_paredes_invisiveis_seguram_o_personagem_no_mundo():
+    from jogo.fases.fase import Fase
+    from jogo.nucleo import config
+
+    fase = Fase(config.carregar("fase_teste"))
+    p = Angel.criar(fase.inicio)
+    for _ in range(180):  # 3 segundos andando para a esquerda
+        p.atualizar(DT, Comandos(esquerda=True), fase.solidos)
+    assert p.rect.left == 0

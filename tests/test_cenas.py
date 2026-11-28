@@ -62,6 +62,27 @@ def test_esc_na_fase_volta_para_a_escolha():
     assert jogo.pedidos == [("escolha", Dark)]
 
 
+def test_chegar_na_bandeira_conclui_e_volta_depois_de_2_segundos():
+    jogo = JogoFalso()
+    cena = CenaTeste(jogo, Angel)
+    cena.personagem.rect = cena.fase.chegada.copy()
+    cena.personagem.x, cena.personagem.y = float(cena.fase.chegada.x), float(cena.fase.chegada.y)
+    cena.atualizar(1 / 60, [])
+    assert cena.concluida
+    assert jogo.pedidos == []
+    for _ in range(130):  # pouco mais de 2 segundos
+        cena.atualizar(1 / 60, [])
+    assert jogo.pedidos[0] == ("escolha", Angel)
+
+
+def test_fase_desenha_sem_erro():
+    tela = pygame.Surface((960, 540))
+    cena = CenaTeste(JogoFalso(), Dark)
+    cena.desenhar(tela)
+    cena.concluida = True
+    cena.desenhar(tela)
+
+
 def test_escolha_desenha_sem_erro():
     tela = pygame.Surface((960, 540))
     CenaEscolha(JogoFalso()).desenhar(tela)

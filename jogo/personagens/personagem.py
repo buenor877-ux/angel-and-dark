@@ -56,6 +56,7 @@ class Personagem:
         self.vel_x = 0.0
         self.vel_y = 0.0
         self.no_chao = False
+        self.olhando = 1  # 1 = direita, -1 = esquerda (a câmera usa para olhar à frente)
         self.tempo_desde_chao = 999.0  # para o tempo de coiote
         self.tempo_desde_pulo = 999.0  # para o buffer de pulo
         self.estado = Estado.CAINDO
@@ -72,6 +73,8 @@ class Personagem:
 
     def _andar(self, dt: float, comandos: Comandos) -> None:
         direcao = int(comandos.direita) - int(comandos.esquerda)
+        if direcao:
+            self.olhando = direcao
         alvo = direcao * self.cfg["velocidade"]
         taxa = self.cfg["aceleracao"] if direcao else self.cfg["desaceleracao"]
         self.vel_x = _aproximar(self.vel_x, alvo, taxa * dt)
@@ -144,5 +147,6 @@ class Personagem:
 
     # ---------- desenho ----------
 
-    def desenhar(self, tela: pygame.Surface) -> None:
-        pygame.draw.rect(tela, self.cor, self.rect)
+    def desenhar(self, tela: pygame.Surface, camera=None) -> None:
+        rect = camera.na_tela(self.rect) if camera else self.rect
+        pygame.draw.rect(tela, self.cor, rect)
