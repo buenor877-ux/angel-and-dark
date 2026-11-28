@@ -8,7 +8,9 @@ gravidade = 1800                 # a mesma dos personagens
 velocidade_queda_max = 900
 tolerancia_pisao = 12            # pés até 12 px abaixo do topo do inimigo ainda contam como "em cima"
 quique = 480                     # pulinho ao pisar num inimigo (segurar o pulo deixa mais alto)
-tempo_derrotado = 0.4            # segundos mostrando o inimigo amassado antes de sumir
+tempo_derrotado = 0.5            # segundos do pisão até sumir (piscar branco + amassado)
+tempo_piscar_dano = 0.15         # primeiros segundos disso: o corpo todo fica branco
+cor_dano = [255, 255, 255]       # branco = levou dano (vermelho é só o aviso de ataque)
 
 # Javali da Floresta (decisão de 28/11): patrulha devagar, vira na borda e na parede;
 # ao ver o jogador na frente, para, treme (aviso) e investe em linha reta.
@@ -20,7 +22,8 @@ cor_aviso = [200, 60, 40]        # fica avermelhado enquanto avisa e investe
 velocidade_patrulha = 60
 velocidade_investida = 330       # mais rápido que o jogador (260): a saída é pular por cima
 distancia_visao = 300            # até onde ele enxerga para a frente
-altura_visao = 40                # quanto acima dele ainda enxerga (jogador pulando baixo)
+altura_visao = 0                 # quanto acima dele ainda enxerga; 0 = só quem está na altura dele
+                                 # (Revisão 1: quem vem caindo de cima não dispara o aviso)
 tempo_aviso = 0.6                # parado tremendo antes de investir
 tremor = 2                       # pixels de tremida durante o aviso
 tempo_descanso = 0.8             # parado, cansado, depois de investir

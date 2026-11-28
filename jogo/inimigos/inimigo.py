@@ -47,6 +47,13 @@ class Inimigo:
         return not self.derrotado
 
     @property
+    def piscando_dano(self) -> bool:
+        """Logo depois do pisão: o corpo inteiro fica branco antes de amassar."""
+        if not self.derrotado:
+            return False
+        return self.cfg["tempo_derrotado"] - self.tempo_derrotado < self.cfg["tempo_piscar_dano"]
+
+    @property
     def sumiu(self) -> bool:
         """Já acabou a animação de amassado: não precisa mais desenhar."""
         return self.derrotado and self.tempo_derrotado <= 0
@@ -140,11 +147,18 @@ class Inimigo:
     def desenhar(self, tela: pygame.Surface, camera) -> None:
         if self.sumiu:
             return
-        rect = camera.na_tela(self.rect).move(self.deslocamento_desenho(), 0)
+        rect = camera.na_tela(self.rect)
+        if self.piscando_dano:  # branco = levou dano (vermelho é só para "vou atacar")
+            # Pisca branco/marrom 20 vezes por segundo: assim não se confunde com a Angel,
+            # que também é branca por enquanto.
+            branco = int(self.tempo_derrotado * 40) % 2 == 0
+            pygame.draw.rect(tela, tuple(self.cfg["cor_dano"]) if branco else self.cor, rect)
+            return
         if self.derrotado:  # amassado: um terço da altura, grudado no chão
             rect = pygame.Rect(rect.x, rect.bottom - rect.height // 3, rect.width, rect.height // 3)
             pygame.draw.rect(tela, self.cor, rect)
             return
+        rect = rect.move(self.deslocamento_desenho(), 0)
         pygame.draw.rect(tela, self.cor_atual(), rect)
         # "Presa" clara do lado em que olha: mostra para onde ele vai.
         lado = rect.right - 8 if self.olhando > 0 else rect.left

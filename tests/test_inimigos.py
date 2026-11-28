@@ -84,6 +84,12 @@ def test_ve_o_jogador_na_frente_mas_nao_atras():
     assert not j.ve(pygame.Rect(400, 700, 32, 48))  # muito acima
 
 
+def test_nao_ve_quem_vem_caindo_logo_acima_dele():
+    j = javali()
+    pes = j.rect.top - 5  # quase pisando, mas ainda acima da cabeça dele
+    assert not j.ve(pygame.Rect(j.rect.left - 40, pes - 48, 32, 48))
+
+
 def test_avisa_parado_e_depois_investe_rapido():
     j = javali()
     alvo = jogador_em(400)
@@ -172,6 +178,8 @@ def test_cair_em_cima_derrota_e_da_um_pulinho():
     c.personagem.vel_y = 300.0  # caindo
     c.atualizar(DT, [])
     assert not j.vivo
+    assert j.piscando_dano  # branco logo depois do pisão
+    assert j.estado == EstadoJavali.PATRULHA  # não chegou a ficar vermelho (aviso)
     assert c.personagem.vel_y < 0  # quicou para cima
     assert c.personagem.vida.coracoes == 3  # sem dano
 

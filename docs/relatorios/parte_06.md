@@ -101,3 +101,40 @@ Arquivo novo **`config/inimigos.toml`**:
 2. Os 3 javalis estão bem colocados? O da tela 5, perto da água, está difícil demais?
 3. Os javalis devem voltar ao perder uma vida, ou quem foi derrotado fica derrotado?
 4. Parte 7: o segundo inimigo (planta que cospe sementes ou vespa)? Ou começar os poderes?
+
+---
+
+## Revisão 1 (28/11/2026): depois do teste de jogo
+**O que o Leonardo achou:** o javali ficou legal, e o vermelho antes da investida é bom. Mas, ao cair em cima dele, o javali ficava vermelho antes de ser pisado, e parecia que o vermelho era "levou dano".
+
+**Por que acontecia:** o javali enxergava também até 40 px acima da cabeça. Quem vinha caindo na frente dele entrava nessa faixa nos últimos instantes da queda, e ele começava o aviso (vermelho) logo antes do pisão.
+
+**Decisões dele:**
+1. **O javali não enxerga quem vem de cima.** Só fica vermelho se você estiver na altura dele (no chão, na frente).
+2. **O pisão ganhou uma cor própria:** um piscar branco antes de amassar.
+
+Assim, **vermelho = "vou atacar"** e **branco = "levei dano"**.
+
+**O que mudou:**
+- `config/inimigos.toml`:
+  - `altura_visao` passou de 40 para **0**;
+  - `tempo_derrotado` passou de 0,4 s para **0,5 s**: são 0,15 s piscando e o resto amassado;
+  - dois números novos: `tempo_piscar_dano` (0,15 s) e `cor_dano` (branco).
+- `jogo/inimigos/inimigo.py`:
+  - a propriedade nova `piscando_dano` diz se o inimigo está nos primeiros instantes depois do pisão;
+  - durante esse tempo, o corpo inteiro **pisca branco e marrom** 20 vezes por segundo;
+  - a tremida do aviso não aparece mais num javali já pisado.
+
+**Problema encontrado:** na primeira captura, o javali branco ficava **da mesma cor da Angel** (ela também é branca, provisoriamente), e os dois viravam uma mancha só. Por isso, em vez de ficar branco parado, ele **pisca** branco e marrom. Quando a arte de verdade chegar, dá para voltar ao branco fixo, se você preferir.
+
+**Testes:** **78 de 78 passando** (um novo).
+- Novo: o javali **não vê** quem está caindo logo acima da cabeça dele.
+- Atualizado: o teste do pisão agora confere que o javali pisca branco e que **não passou pelo aviso**.
+
+**Jogo rodado sem janela:**
+- caí em cima do javali 3: ele **não ficou vermelho em nenhum quadro**, piscou branco e depois amassou;
+- parado no chão na frente do javali 2, ele ainda me viu e começou o aviso, como antes.
+
+A versão web continua montando.
+
+**Para debater:** o piscar de 0,15 s está visível, ou quer mais longo?
