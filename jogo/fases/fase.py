@@ -1,7 +1,6 @@
-"""Dados de uma fase: tamanho, plataformas, início e chegada.
+"""Uma fase: tamanho, colisão, início, chegada e o desenho do cenário.
 
-Por enquanto a fase vem de config/fase_teste.toml. Quando o Tiled entrar,
-só a forma de carregar muda; o resto do jogo continua usando esta classe.
+A fase não sabe de onde veio (Tiled, TOML, teste). Quem cria é o carregador_fases.py.
 """
 
 import pygame
@@ -10,17 +9,43 @@ ESPESSURA_PAREDE = 100
 
 
 class Fase:
-    def __init__(self, dados: dict):
-        self.largura, self.altura = dados["tamanho"]
-        self.inicio = tuple(dados["inicio"])
-        self.chegada = pygame.Rect(*dados["chegada"])
-        self.plataformas = [pygame.Rect(*p) for p in dados["plataformas"]]
+    def __init__(
+        self,
+        largura: int,
+        altura: int,
+        inicio: tuple[int, int],
+        chegada: pygame.Rect,
+        plataformas: list[pygame.Rect],
+        superficies: list[pygame.Rect] | None = None,
+        desenho: pygame.Surface | None = None,
+        nome: str = "",
+    ):
+        self.largura, self.altura = largura, altura
+        self.inicio = inicio  # posição dos PÉS do personagem no começo
+        self.chegada = chegada
+        self.plataformas = plataformas  # retângulos sólidos (já juntados)
+        # Superfícies = topos onde dá para pisar. Usadas para conferir o alcance.
+        self.superficies = superficies if superficies is not None else plataformas
+        self.desenho = desenho  # cenário inteiro já desenhado (vem do Tiled)
+        self.nome = nome
         # Paredes invisíveis nas bordas: o personagem não sai do mundo pelos lados.
         self.paredes = [
-            pygame.Rect(-ESPESSURA_PAREDE, -self.altura, ESPESSURA_PAREDE, self.altura * 3),
-            pygame.Rect(self.largura, -self.altura, ESPESSURA_PAREDE, self.altura * 3),
+            pygame.Rect(-ESPESSURA_PAREDE, -altura, ESPESSURA_PAREDE, altura * 3),
+            pygame.Rect(largura, -altura, ESPESSURA_PAREDE, altura * 3),
         ]
-        self.limite_queda = self.altura + 100  # passou disto, caiu para fora
+        self.limite_queda = altura + 100  # passou disto, caiu para fora
+
+    @classmethod
+    def de_dados(cls, dados: dict) -> "Fase":
+        """Fase simples a partir de um dicionário (usada nos testes)."""
+        largura, altura = dados["tamanho"]
+        return cls(
+            largura,
+            altura,
+            tuple(dados["inicio"]),
+            pygame.Rect(*dados["chegada"]),
+            [pygame.Rect(*p) for p in dados["plataformas"]],
+        )
 
     @property
     def tamanho(self) -> tuple[int, int]:
@@ -38,14 +63,12 @@ class Fase:
         return rect.colliderect(self.chegada)
 
     def desenhar(self, tela: pygame.Surface, cores: dict, camera) -> None:
-        area_visivel = pygame.Rect(round(camera.x), round(camera.y), *tela.get_size())
+        if self.desenho is not None:
+            # Copia só o pedaço do cenário que a câmera está vendo.
+            area = pygame.Rect(round(camera.x), round(camera.y), *tela.get_size())
+            tela.blit(self.desenho, (0, 0), area)
+            return
+        # Sem desenho (fases de teste): retângulos simples.
         for p in self.plataformas:
-            if p.colliderect(area_visivel):  # só desenha o que aparece na tela
-                pygame.draw.rect(tela, cores["plataforma"], camera.na_tela(p))
-        self._desenhar_bandeira(tela, cores["destaque"], camera)
-
-    def _desenhar_bandeira(self, tela: pygame.Surface, cor: tuple, camera) -> None:
-        mastro = camera.na_tela(pygame.Rect(self.chegada.x, self.chegada.y, 4, self.chegada.h))
-        pygame.draw.rect(tela, cor, mastro)
-        x, y = mastro.right, mastro.top
-        pygame.draw.polygon(tela, cor, [(x, y), (x + 30, y + 12), (x, y + 24)])
+            pygame.draw.rect(tela, cores["plataforma"], camera.na_tela(p))
+        pygame.draw.rect(tela, cores["destaque"], camera.na_tela(self.chegada))

@@ -12,5 +12,6 @@ import pytest  # noqa: E402
 @pytest.fixture(scope="session", autouse=True)
 def pygame_iniciado():
     pygame.init()
+    pygame.display.set_mode((1, 1))  # carregar imagens (convert) exige uma tela
     yield
     pygame.quit()

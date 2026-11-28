@@ -1,0 +1,16 @@
+# Configurações de cada fase. O desenho da fase fica no Tiled (assets/mapas/<fase>.tmx);
+# aqui ficam só os ajustes que não são desenho.
+
+[01_floresta]
+nome = "Floresta"
+
+[01_floresta.fundo]
+imagem = "assets/cenarios/01_floresta/kenney_fundos.png"
+tamanho_bloco = 24               # blocos da folha de fundos da Kenney
+escala = 3                       # 24 px viram 72 px na tela
+faixa = [14, 15, 14, 14, 15]     # morros e árvores, repetidos na horizontal
+ceu = 6                          # bloco de onde sai a cor do céu
+base = 22                        # bloco de onde sai a cor abaixo dos morros
+fator_x = 0.3                    # fundo anda 30% do que a câmera anda
+fator_y = 0.15                   # na vertical, quase não mexe
+altura_horizonte = 0.72          # onde fica o pé dos morros na tela (0 = topo, 1 = base)

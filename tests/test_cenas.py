@@ -3,7 +3,7 @@
 import pygame
 
 from jogo.cenas.cena_escolha import CenaEscolha
-from jogo.cenas.cena_teste import CenaTeste
+from jogo.cenas.cena_fase import CenaFase
 from jogo.nucleo import config
 from jogo.personagens.angel import Angel
 from jogo.personagens.dark import Dark
@@ -56,7 +56,7 @@ def test_esc_na_escolha_pede_para_sair():
 
 def test_esc_na_fase_volta_para_a_escolha():
     jogo = JogoFalso()
-    cena = CenaTeste(jogo, Dark)
+    cena = CenaFase(jogo, Dark, "01_floresta")
     assert cena.personagem.nome == "Dark"
     cena.atualizar(1 / 60, [tecla(pygame.K_ESCAPE)])
     assert jogo.pedidos == [("escolha", Dark)]
@@ -64,7 +64,7 @@ def test_esc_na_fase_volta_para_a_escolha():
 
 def test_chegar_na_bandeira_conclui_e_volta_depois_de_2_segundos():
     jogo = JogoFalso()
-    cena = CenaTeste(jogo, Angel)
+    cena = CenaFase(jogo, Angel, "01_floresta")
     cena.personagem.rect = cena.fase.chegada.copy()
     cena.personagem.x, cena.personagem.y = float(cena.fase.chegada.x), float(cena.fase.chegada.y)
     cena.atualizar(1 / 60, [])
@@ -77,10 +77,19 @@ def test_chegar_na_bandeira_conclui_e_volta_depois_de_2_segundos():
 
 def test_fase_desenha_sem_erro():
     tela = pygame.Surface((960, 540))
-    cena = CenaTeste(JogoFalso(), Dark)
+    cena = CenaFase(JogoFalso(), Dark, "01_floresta")
     cena.desenhar(tela)
     cena.concluida = True
     cena.desenhar(tela)
+
+
+def test_personagem_comeca_de_pe_no_inicio_da_fase():
+    cena = CenaFase(JogoFalso(), Angel, "01_floresta")
+    for _ in range(30):
+        cena.atualizar(1 / 60, [])
+    assert cena.personagem.no_chao
+    assert abs(cena.personagem.rect.bottom - cena.fase.inicio[1]) <= 4  # pousou logo abaixo
+    assert cena.quedas == 0
 
 
 def test_escolha_desenha_sem_erro():

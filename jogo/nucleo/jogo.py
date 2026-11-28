@@ -10,7 +10,7 @@ import sys
 import pygame
 
 from jogo.cenas.cena_escolha import OPCOES, CenaEscolha
-from jogo.cenas.cena_teste import CenaTeste
+from jogo.cenas.cena_fase import CenaFase
 from jogo.nucleo import config
 
 NO_NAVEGADOR = sys.platform == "emscripten"
@@ -31,7 +31,7 @@ class Jogo:
     # ---------- troca de cenas ----------
 
     def iniciar_fase(self, classe_personagem) -> None:
-        self.cena = CenaTeste(self, classe_personagem)
+        self.cena = CenaFase(self, classe_personagem, self.cfg["mapa"]["fase_inicial"])
 
     def ir_para_escolha(self, ultimo_personagem=None) -> None:
         """Volta à escolha, já marcando o último personagem usado."""

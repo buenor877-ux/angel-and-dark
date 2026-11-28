@@ -10,6 +10,8 @@ fps = 60
 fundo = [24, 28, 48]
 plataforma = [92, 98, 120]
 texto = [220, 220, 230]
+texto_fase = [255, 255, 255]     # texto em cima do cenário colorido
+caixa = [24, 28, 48]             # fundo escuro atrás do texto, para ler bem
 destaque = [255, 210, 90]        # moldura do personagem selecionado e bandeira
 
 [camera]
@@ -20,3 +22,7 @@ olhar_frente = 120               # pixels a mais mostrados para o lado em que o 
 altura_personagem = 0.70         # onde ficam os pés na tela (0 = topo, 1 = base)
 margem_topo = 0.15               # se o personagem passar disto para cima, a câmera sobe
 margem_base = 0.85               # se passar disto para baixo, a câmera desce
+
+[mapa]
+escala = 2                       # blocos de 18 px do Tiled viram 36 px na tela
+fase_inicial = "01_floresta"

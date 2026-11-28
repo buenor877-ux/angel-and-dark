@@ -1,47 +1,88 @@
-"""Testes da fase de teste e das configurações."""
+"""Testes das fases: o mapa do Tiled, a junção de blocos e o alcance (dá para chegar em tudo?)."""
 
 import pygame
+import pytest
 
+from jogo.fases import carregador_fases
 from jogo.fases.fase import Fase
 from jogo.nucleo import config
 from jogo.personagens.personagem import carregar_config
 
 MARGEM = 0.85  # regra de design: usar no máximo 85% do pulo
+ESCALA = 2
 
 
-def fase_teste():
-    return Fase(config.carregar("fase_teste"))
+@pytest.fixture(scope="module")
+def floresta():
+    return carregador_fases.carregar("01_floresta", ESCALA)
 
 
 def test_configs_carregam():
     assert config.carregar("jogo")["janela"]["fps"] == 60
     assert {"movimento", "angel", "dark"} <= config.carregar("personagens").keys()
+    assert "fundo" in config.carregar("fases")["01_floresta"]
 
 
-def test_fase_e_maior_que_a_tela_e_inicio_valido():
-    fase = fase_teste()
-    assert fase.largura >= 960 * 3
-    x, y = fase.inicio
-    assert 0 <= x < fase.largura and 0 <= y < fase.altura
+# ---------- o mapa da Floresta ----------
 
 
-def test_plataformas_e_chegada_dentro_do_mundo():
-    fase = fase_teste()
-    mundo = pygame.Rect(0, 0, fase.largura, fase.altura)
-    for p in fase.plataformas + [fase.chegada]:
-        assert mundo.contains(p), f"{tuple(p)} está fora do mundo"
+def test_floresta_tem_tamanho_e_desenho(floresta):
+    assert floresta.tamanho == (80 * 18 * ESCALA, 30 * 18 * ESCALA)
+    assert floresta.desenho.get_size() == floresta.tamanho
+    assert floresta.nome == "Floresta 1"
 
 
-def test_detecta_queda_para_fora():
-    fase = fase_teste()
-    assert not fase.caiu_para_fora(pygame.Rect(100, 900, 32, 48))
-    assert fase.caiu_para_fora(pygame.Rect(100, fase.altura + 200, 32, 48))
+def test_inicio_e_chegada_dentro_do_mundo(floresta):
+    mundo = pygame.Rect(0, 0, *floresta.tamanho)
+    assert mundo.collidepoint(floresta.inicio)
+    assert mundo.contains(floresta.chegada)
 
 
-def test_detecta_chegada():
-    fase = fase_teste()
-    assert fase.chegou(fase.chegada.copy())
-    assert not fase.chegou(pygame.Rect(*fase.inicio, 32, 48))
+def test_inicio_fica_logo_acima_de_um_chao(floresta):
+    x, y = floresta.inicio
+    abaixo = pygame.Rect(x, y, 1, 40)
+    assert abaixo.collidelist(floresta.plataformas) != -1
+
+
+def test_blocos_viram_poucos_retangulos(floresta):
+    """287 blocos de chão no mapa: juntados, a colisão fica bem mais leve."""
+    assert len(floresta.plataformas) < 30
+
+
+def test_detecta_queda_e_chegada(floresta):
+    assert floresta.caiu_para_fora(pygame.Rect(100, floresta.altura + 200, 32, 48))
+    assert not floresta.caiu_para_fora(pygame.Rect(100, 100, 32, 48))
+    assert floresta.chegou(floresta.chegada.copy())
+
+
+# ---------- juntar blocos ----------
+
+
+def test_juntar_blocos_faz_retangulos_maiores():
+    X, _ = True, False
+    grade = [
+        [_, X, X, _],
+        [_, X, X, _],
+        [X, X, X, X],
+    ]
+    rects = carregador_fases.juntar_blocos(grade, 10)
+    area = sum(r.w * r.h for r in rects)
+    assert area == 8 * 100  # 8 blocos de 10×10, nada sobrando nem faltando
+    assert pygame.Rect(10, 0, 20, 20) in rects  # os 4 de cima viraram um só
+    assert len(rects) == 2
+
+
+def test_superficies_sao_so_os_topos():
+    X, _ = True, False
+    grade = [
+        [_, X, _],
+        [X, X, X],
+    ]
+    sup = carregador_fases.achar_superficies(grade, 10)
+    assert pygame.Rect(10, 0, 10, 10) in sup  # topo do bloco do meio
+    assert pygame.Rect(0, 10, 10, 10) in sup  # topos dos lados, na linha de baixo
+    assert pygame.Rect(20, 10, 10, 10) in sup
+    assert len(sup) == 3  # o bloco embaixo do topo não é superfície
 
 
 # ---------- alcance: dá para chegar em todo lugar? ----------
@@ -72,31 +113,50 @@ def da_para_ir(de: pygame.Rect, para: pygame.Rect, altura_max: float, dist_max: 
 
 
 def alcancaveis(fase: Fase) -> set[int]:
-    """Percorre a fase como um jogador: parte do chão e marca tudo o que alcança."""
+    """Percorre a fase como um jogador: parte de onde ele começa e marca tudo o que alcança."""
     altura_max, dist_max = alcance_do_pulo()
-    plats = fase.plataformas
-    chao = max(p.top for p in plats)
-    visitadas = {i for i, p in enumerate(plats) if p.top == chao}
-    fila = list(visitadas)
+    sup = fase.superficies
+    x, y = fase.inicio
+    pe = pygame.Rect(x, y, 1, 40)
+    primeira = pe.collidelist(sup)
+    visitadas = {primeira}
+    fila = [primeira]
     while fila:
-        atual = plats[fila.pop()]
-        for i, p in enumerate(plats):
-            if i not in visitadas and da_para_ir(atual, p, altura_max, dist_max):
+        atual = sup[fila.pop()]
+        for i, s in enumerate(sup):
+            if i not in visitadas and da_para_ir(atual, s, altura_max, dist_max):
                 visitadas.add(i)
                 fila.append(i)
     return visitadas
 
 
-def test_toda_plataforma_e_alcancavel():
-    fase = fase_teste()
-    visitadas = alcancaveis(fase)
-    faltando = [tuple(p) for i, p in enumerate(fase.plataformas) if i not in visitadas]
-    assert not faltando, f"plataformas impossíveis de alcançar: {faltando}"
+def test_toda_superficie_da_floresta_e_alcancavel(floresta):
+    visitadas = alcancaveis(floresta)
+    faltando = [tuple(s) for i, s in enumerate(floresta.superficies) if i not in visitadas]
+    assert not faltando, f"lugares impossíveis de alcançar: {faltando}"
 
 
-def test_o_teste_de_alcance_reprova_plataforma_impossivel():
+def test_da_para_chegar_na_bandeira(floresta):
+    altura_max, _ = alcance_do_pulo()
+    visitadas = alcancaveis(floresta)
+    perto = [
+        s
+        for i, s in enumerate(floresta.superficies)
+        if i in visitadas
+        and vao_horizontal(s, floresta.chegada) == 0
+        and 0 <= s.top - floresta.chegada.bottom <= altura_max
+    ]
+    assert perto, "nenhum chão alcançável embaixo da bandeira"
+
+
+def test_o_teste_de_alcance_reprova_lugar_impossivel():
     """Confere que o próprio teste funciona: uma plataforma alta demais é pega."""
-    dados = config.carregar("fase_teste")
-    dados["plataformas"] = dados["plataformas"] + [[100, 600, 100, 20]]  # 440 px acima do chão
-    fase = Fase(dados)
-    assert len(fase.plataformas) - 1 not in alcancaveis(fase)
+    fase = Fase.de_dados(
+        {
+            "tamanho": [2000, 1000],
+            "inicio": [50, 900],
+            "chegada": [1900, 850, 20, 50],
+            "plataformas": [[0, 900, 2000, 100], [300, 500, 100, 20]],  # 400 px acima
+        }
+    )
+    assert alcancaveis(fase) == {0}
