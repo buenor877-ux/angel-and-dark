@@ -9,6 +9,7 @@ import pygame
 
 from jogo.nucleo import config
 from jogo.nucleo.controles import Comandos
+from jogo.personagens.vida import Vida
 
 
 def carregar_config(chave: str) -> dict:
@@ -42,6 +43,7 @@ class Personagem:
         self.cor = tuple(cfg["cor"])
         self.rect = pygame.Rect(0, 0, cfg["largura"], cfg["altura"])
         self.inicio = posicao
+        self.vida = Vida(config.carregar("personagens")["vida"])
         self.reiniciar()
 
     @classmethod
@@ -65,11 +67,23 @@ class Personagem:
     # ---------- atualização (chamada todo quadro) ----------
 
     def atualizar(self, dt: float, comandos: Comandos, plataformas: list[pygame.Rect]) -> None:
-        self._andar(dt, comandos)
-        self._pular(dt, comandos)
+        self.vida.atualizar(dt)
+        if not self.vida.sem_controle:  # durante o empurrão, o controle não responde
+            self._andar(dt, comandos)
+            self._pular(dt, comandos)
         self._aplicar_gravidade(dt)
         self._mover_e_colidir(dt, plataformas)
         self._atualizar_estado()
+
+    def levar_dano(self, origem_x: float) -> bool:
+        """Perde 1 coração e é empurrado para longe de `origem_x`. False = estava invulnerável."""
+        if not self.vida.levar_dano():
+            return False
+        lado = 1 if self.rect.centerx >= origem_x else -1
+        self.vel_x = lado * self.vida.cfg["empurrao_x"]
+        self.vel_y = -self.vida.cfg["empurrao_y"]
+        self.no_chao = False
+        return True
 
     def _andar(self, dt: float, comandos: Comandos) -> None:
         direcao = int(comandos.direita) - int(comandos.esquerda)
@@ -148,5 +162,7 @@ class Personagem:
     # ---------- desenho ----------
 
     def desenhar(self, tela: pygame.Surface, camera=None) -> None:
+        if not self.vida.visivel:  # piscando depois de levar dano
+            return
         rect = camera.na_tela(self.rect) if camera else self.rect
         pygame.draw.rect(tela, self.cor, rect)
