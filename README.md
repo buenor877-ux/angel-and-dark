@@ -3,7 +3,7 @@
 Jogo de plataforma 2D em Python (Pygame-CE), feito para rodar no navegador pelo itch.io.
 Angel é a luz, Dark é a sombra. Dez fases até o chefe final, Kaothar.
 
-> Em desenvolvimento. Versão atual: **v0.1, Parte 1**, a Angel andando e pulando numa fase de teste.
+> Em desenvolvimento. Versão atual: **v0.1, Parte 2**: escolha entre Angel e Dark e uma fase de teste.
 
 ## Como jogar no PC
 Precisa do [uv](https://docs.astral.sh/uv/) instalado.
@@ -17,7 +17,8 @@ uv run python main.py
 |---|---|
 | ← → ou A D | Andar |
 | Espaço, ↑ ou W | Pular (segure para pular mais alto) |
-| Esc | Sair |
+| Enter ou Espaço | Confirmar a escolha de personagem |
+| Esc | Na fase: voltar à escolha. Na escolha: sair |
 
 ## Para desenvolver
 ```

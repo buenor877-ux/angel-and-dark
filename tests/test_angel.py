@@ -6,10 +6,9 @@ Cada teste simula alguns quadros com comandos fixos e confere o resultado.
 import pygame
 import pytest
 
-from jogo.nucleo import config
 from jogo.nucleo.controles import Comandos
 from jogo.personagens.angel import Angel
-from jogo.personagens.personagem import Estado
+from jogo.personagens.personagem import Estado, carregar_config
 
 DT = 1 / 60
 CHAO = pygame.Rect(0, 500, 960, 40)
@@ -17,7 +16,7 @@ CHAO = pygame.Rect(0, 500, 960, 40)
 
 @pytest.fixture
 def cfg():
-    return config.carregar("personagens")["angel"]
+    return carregar_config("angel")
 
 
 def simular(angel, comandos, plataformas, quadros):

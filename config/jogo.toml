@@ -10,3 +10,4 @@ fps = 60
 fundo = [24, 28, 48]
 plataforma = [92, 98, 120]
 texto = [220, 220, 230]
+destaque = [255, 210, 90]        # moldura do personagem selecionado

@@ -1,7 +1,7 @@
 """Angel, a personagem da luz.
 
-Por enquanto só herda o movimento. Os poderes de luz entram em partes futuras,
-em jogo/personagens/habilidades/.
+Movimento herdado de Personagem. Poderes futuros (em jogo/personagens/habilidades/):
+teletransporte e super inteligência (cenário); poder de luz e super força (ataque).
 """
 
 from jogo.personagens.personagem import Personagem
@@ -9,3 +9,4 @@ from jogo.personagens.personagem import Personagem
 
 class Angel(Personagem):
     nome = "Angel"
+    chave = "angel"
