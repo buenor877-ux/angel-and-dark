@@ -25,3 +25,12 @@ cor = [245, 245, 255]            # branco provisório
 
 [dark]
 cor = [140, 70, 210]             # roxo provisório (preto sumiria no fundo escuro)
+
+# Sistema de vida (aprovado em 28/11, docs/03). Vale para os dois personagens.
+[vida]
+coracoes = 3                     # dano tira 1; zerou, perde 1 vida
+vidas = 3                        # perdeu todas: fim de jogo
+tempo_invulneravel = 1.5         # segundos piscando depois de levar dano
+tempo_empurrao = 0.25            # segundos sem controle durante o empurrão
+empurrao_x = 320                 # força do empurrão para trás
+empurrao_y = 380                 # força do empurrão para cima

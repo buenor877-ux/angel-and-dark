@@ -5,8 +5,12 @@
 
 Combinado com o mapa:
 - camada de blocos com a propriedade `solido = true` → o personagem bate nela;
-- outras camadas de blocos → só desenho (decoração);
-- camada de objetos "objetos" com um ponto "inicio" (pés) e um retângulo "chegada".
+- camada de blocos com `perigo = true` → encostou, leva dano. A propriedade
+  `altura_dano` (0 a 1) diz quanto do bloco, de baixo para cima, machuca;
+- camada de blocos com `frente = true` → desenhada na frente do personagem (água);
+- outras camadas de blocos → só desenho atrás do personagem (decoração);
+- camada de objetos "objetos": ponto "inicio" (pés), retângulo "chegada" e
+  objetos-bloco "checkpoint" (podem ser vários).
 """
 
 from pathlib import Path
@@ -14,7 +18,7 @@ from pathlib import Path
 import pygame
 import pytmx
 
-from jogo.fases.fase import Fase
+from jogo.fases.fase import Checkpoint, Fase
 
 RAIZ = Path(__file__).resolve().parents[2]
 PASTA_MAPAS = RAIZ / "assets" / "mapas"
@@ -23,40 +27,82 @@ PASTA_MAPAS = RAIZ / "assets" / "mapas"
 def carregar(nome: str, escala: int) -> Fase:
     mapa = pytmx.load_pygame(str(PASTA_MAPAS / f"{nome}.tmx"))
     tam = mapa.tilewidth * escala  # tamanho do bloco no jogo, em pixels
+    tamanho_mundo = (mapa.width * tam, mapa.height * tam)
 
     solidos = [[False] * mapa.width for _ in range(mapa.height)]
-    desenho = pygame.Surface((mapa.width * tam, mapa.height * tam), pygame.SRCALPHA)
+    perigos = []
+    desenho = pygame.Surface(tamanho_mundo, pygame.SRCALPHA)
+    desenho_frente = None
 
     for camada in mapa.visible_layers:
-        if isinstance(camada, pytmx.TiledTileLayer):
-            e_solida = bool(camada.properties.get("solido", False))
-            for x, y, gid in camada.iter_data():
-                if not gid:
-                    continue
-                imagem = mapa.get_tile_image_by_gid(gid)
-                if imagem is not None:
-                    desenho.blit(pygame.transform.scale(imagem, (tam, tam)), (x * tam, y * tam))
-                if e_solida:
-                    solidos[y][x] = True
+        if not isinstance(camada, pytmx.TiledTileLayer):
+            continue
+        props = camada.properties
+        e_solida = bool(props.get("solido", False))
+        e_perigo = bool(props.get("perigo", False))
+        altura_dano = float(props.get("altura_dano", 1.0))
+        if props.get("frente", False):
+            desenho_frente = desenho_frente or pygame.Surface(tamanho_mundo, pygame.SRCALPHA)
+            destino = desenho_frente
+        else:
+            destino = desenho
 
-    objetos = {o.name: o for o in mapa.get_layer_by_name("objetos")}
-    ini, fim = objetos["inicio"], objetos["chegada"]
+        for x, y, gid in camada.iter_data():
+            if not gid:
+                continue
+            imagem = mapa.get_tile_image_by_gid(gid)
+            if imagem is not None:
+                destino.blit(pygame.transform.scale(imagem, (tam, tam)), (x * tam, y * tam))
+            if e_solida:
+                solidos[y][x] = True
+            if e_perigo:
+                perigos.append(_area_de_dano(x, y, tam, altura_dano))
+
+    inicio = chegada = None
+    checkpoints = []
+    for o in mapa.get_layer_by_name("objetos"):
+        if o.name == "inicio":
+            inicio = (round(o.x * escala), round(o.y * escala))
+        elif o.name == "chegada":
+            chegada = _escalar(o, escala)
+        elif o.name == "checkpoint":
+            img = o.image and pygame.transform.scale(o.image, (tam, tam))
+            checkpoints.append(Checkpoint(_escalar(o, escala), img))
+    if inicio is None or chegada is None:
+        raise ValueError(f"{nome}.tmx precisa dos objetos 'inicio' e 'chegada'")
 
     return Fase(
-        largura=mapa.width * tam,
-        altura=mapa.height * tam,
-        inicio=(round(ini.x * escala), round(ini.y * escala)),
-        chegada=pygame.Rect(
-            round(fim.x * escala),
-            round(fim.y * escala),
-            round(fim.width * escala),
-            round(fim.height * escala),
-        ),
+        largura=tamanho_mundo[0],
+        altura=tamanho_mundo[1],
+        inicio=inicio,
+        chegada=chegada,
         plataformas=juntar_blocos(solidos, tam),
         superficies=achar_superficies(solidos, tam),
+        perigos=perigos,
+        checkpoints=checkpoints,
         desenho=desenho,
+        desenho_frente=desenho_frente,
         nome=mapa.properties.get("nome", nome),
     )
+
+
+def _escalar(objeto, escala: int) -> pygame.Rect:
+    return pygame.Rect(
+        round(objeto.x * escala),
+        round(objeto.y * escala),
+        round(objeto.width * escala),
+        round(objeto.height * escala),
+    )
+
+
+def _area_de_dano(x: int, y: int, tam: int, altura_dano: float) -> pygame.Rect:
+    """Só a parte de baixo do bloco machuca (o espinho não ocupa o bloco todo).
+
+    Também encolhe um pouco dos lados: raspar na pontinha não deve doer.
+    """
+    altura = max(1, round(tam * altura_dano))
+    margem = round(tam * 0.15)
+    return pygame.Rect(x * tam + margem, (y + 1) * tam - altura, tam - 2 * margem, altura)
 
 
 def juntar_blocos(solidos: list[list[bool]], tam: int) -> list[pygame.Rect]:

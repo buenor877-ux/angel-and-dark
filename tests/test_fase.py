@@ -27,7 +27,7 @@ def test_configs_carregam():
 
 
 def test_floresta_tem_tamanho_e_desenho(floresta):
-    assert floresta.tamanho == (80 * 18 * ESCALA, 30 * 18 * ESCALA)
+    assert floresta.tamanho == (160 * 18 * ESCALA, 30 * 18 * ESCALA)  # 6 telas
     assert floresta.desenho.get_size() == floresta.tamanho
     assert floresta.nome == "Floresta 1"
 
@@ -160,3 +160,40 @@ def test_o_teste_de_alcance_reprova_lugar_impossivel():
         }
     )
     assert alcancaveis(fase) == {0}
+
+
+# ---------- perigos e checkpoints da Floresta ----------
+
+
+def test_floresta_tem_espinhos_e_um_checkpoint_no_meio(floresta):
+    assert len(floresta.perigos) >= 4
+    assert len(floresta.checkpoints) == 1
+    meio = floresta.largura / 2
+    assert abs(floresta.checkpoints[0].rect.centerx - meio) < floresta.largura * 0.1
+    assert floresta.desenho_frente is not None  # a água
+
+
+def test_area_de_dano_do_espinho_e_so_a_parte_de_baixo(floresta):
+    bloco = 18 * ESCALA
+    for p in floresta.perigos:
+        assert p.height < bloco / 2
+        assert p.width < bloco
+
+
+def test_checkpoints_ficam_em_chao_alcancavel(floresta):
+    visitadas = alcancaveis(floresta)
+    for c in floresta.checkpoints:
+        x, y = c.pes
+        embaixo = pygame.Rect(x, y, 1, 4).collidelist(floresta.superficies)
+        assert embaixo in visitadas, f"checkpoint em {c.pes} não está num chão alcançável"
+
+
+def test_ponto_de_volta_e_o_ultimo_checkpoint_ativo(floresta):
+    assert floresta.ponto_de_volta() == floresta.inicio
+    (checkpoint,) = floresta.checkpoints
+    floresta.ativar_checkpoints(pygame.Rect(checkpoint.rect.centerx - 100, 0, 32, 48))
+    assert floresta.ponto_de_volta() == floresta.inicio  # ainda não passou
+    floresta.ativar_checkpoints(pygame.Rect(checkpoint.rect.centerx + 10, 0, 32, 48))
+    assert floresta.ponto_de_volta() == checkpoint.pes
+    for c in floresta.checkpoints:  # não deixa o estado vazar para outros testes
+        c.ativo = False

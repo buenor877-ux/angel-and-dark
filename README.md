@@ -3,7 +3,7 @@
 Jogo de plataforma 2D em Python (Pygame-CE), feito para rodar no navegador pelo itch.io.
 Angel é a luz, Dark é a sombra. Dez fases até o chefe final, Kaothar.
 
-> Em desenvolvimento. Versão atual: **v0.1, Parte 4**: o começo da Floresta, desenhado no Tiled, com arte da Kenney e fundo com profundidade.
+> Em desenvolvimento. Versão atual: **v0.1, Parte 5**: Floresta 1 com corações, vidas, espinhos, água e checkpoints.
 
 ## Como jogar no PC
 Precisa do [uv](https://docs.astral.sh/uv/) instalado.
@@ -35,7 +35,9 @@ Os números do jogo (velocidade, pulo, gravidade) ficam em `config/` e podem ser
 As fases são desenhadas no [Tiled](https://www.mapeditor.org/) (gratuito). Abra `assets/mapas/01_floresta.tmx`:
 - camada **chao**: blocos em que o personagem pisa (tem a propriedade `solido`);
 - camada **decoracao**: árvores, matinhos e bandeira, só enfeite;
-- camada **objetos**: o ponto `inicio` e a área `chegada`.
+- camada **perigos**: espinhos (propriedade `perigo`; `altura_dano` diz quanto do bloco machuca);
+- camada **agua**: desenhada na frente do personagem (propriedade `frente`);
+- camada **objetos**: o ponto `inicio`, a área `chegada` e as bandeirinhas `checkpoint` (pode ter várias).
 
 Depois de salvar no Tiled, rode `uv run pytest`: o teste de alcance avisa se algum lugar ficou impossível de alcançar.
 

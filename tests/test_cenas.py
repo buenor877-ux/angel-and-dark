@@ -3,7 +3,7 @@
 import pygame
 
 from jogo.cenas.cena_escolha import CenaEscolha
-from jogo.cenas.cena_fase import CenaFase
+from jogo.cenas.cena_fase import CenaFase, EstadoFase
 from jogo.nucleo import config
 from jogo.personagens.angel import Angel
 from jogo.personagens.dark import Dark
@@ -68,7 +68,7 @@ def test_chegar_na_bandeira_conclui_e_volta_depois_de_2_segundos():
     cena.personagem.rect = cena.fase.chegada.copy()
     cena.personagem.x, cena.personagem.y = float(cena.fase.chegada.x), float(cena.fase.chegada.y)
     cena.atualizar(1 / 60, [])
-    assert cena.concluida
+    assert cena.estado == EstadoFase.CONCLUIDA
     assert jogo.pedidos == []
     for _ in range(130):  # pouco mais de 2 segundos
         cena.atualizar(1 / 60, [])
@@ -79,7 +79,7 @@ def test_fase_desenha_sem_erro():
     tela = pygame.Surface((960, 540))
     cena = CenaFase(JogoFalso(), Dark, "01_floresta")
     cena.desenhar(tela)
-    cena.concluida = True
+    cena.estado = EstadoFase.CONCLUIDA
     cena.desenhar(tela)
 
 
@@ -89,7 +89,7 @@ def test_personagem_comeca_de_pe_no_inicio_da_fase():
         cena.atualizar(1 / 60, [])
     assert cena.personagem.no_chao
     assert abs(cena.personagem.rect.bottom - cena.fase.inicio[1]) <= 4  # pousou logo abaixo
-    assert cena.quedas == 0
+    assert cena.personagem.vida.vidas == 3
 
 
 def test_escolha_desenha_sem_erro():

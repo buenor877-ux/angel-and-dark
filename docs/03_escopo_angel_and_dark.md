@@ -63,7 +63,7 @@ Início da conversa: 26/11/2026.
 - **Visual: 16-bit** (estilo Super Nintendo / Mega Drive, com bastante detalhe).
 - **Chefes:** cada fase 1–9 tem um **sub-chefe** (desafiador, mas não tanto); o **vilão principal é o chefe da fase 10**, o mais difícil.
 - **Dano (ideia dele):** levou ataque, perde 1, fica piscando e volta ao normal; perdeu as 3, morre de verdade.
-- **Proposta de sistema (para ele aprovar):**
+- **Sistema de vida (aprovado pelo Leonardo em 28/11; implementado na Parte 5):**
   - Cada tentativa tem **3 corações**. Levou dano: perde 1 coração, pisca ~1,5 s invulnerável e é empurrado para trás.
   - Zerou os corações ou caiu num buraco: perde **1 vida** e volta ao último **checkpoint** com os corações cheios.
   - **3 vidas.** Perdeu as 3: recomeça a fase do início (e pode trocar de personagem).
