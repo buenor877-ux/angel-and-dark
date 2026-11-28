@@ -3,9 +3,25 @@
 A fase não sabe de onde veio (Tiled, dicionário de teste). Quem cria é o carregador_fases.py.
 """
 
+from dataclasses import dataclass
+
 import pygame
 
 ESPESSURA_PAREDE = 100
+
+
+@dataclass
+class LugarInimigo:
+    """Onde um inimigo nasce: o tipo ("javali") e a área dele.
+
+    A fase só guarda o lugar; quem cria o inimigo de verdade é a cena
+    (assim a fase não precisa conhecer as classes de inimigo).
+    A área é o território: o inimigo nasce no meio, com os pés no fundo dela,
+    e não sai dela nem patrulhando nem investindo.
+    """
+
+    tipo: str
+    area: pygame.Rect
 
 
 class Checkpoint:
@@ -35,6 +51,7 @@ class Fase:
         superficies: list[pygame.Rect] | None = None,
         perigos: list[pygame.Rect] | None = None,
         checkpoints: list[Checkpoint] | None = None,
+        inimigos: list[LugarInimigo] | None = None,
         desenho: pygame.Surface | None = None,
         desenho_frente: pygame.Surface | None = None,
         nome: str = "",
@@ -47,6 +64,7 @@ class Fase:
         self.superficies = superficies if superficies is not None else plataformas
         self.perigos = perigos or []  # encostou, leva dano
         self.checkpoints = sorted(checkpoints or [], key=lambda c: c.rect.x)
+        self.inimigos = sorted(inimigos or [], key=lambda i: i.area.x)
         self.desenho = desenho  # cenário desenhado atrás do personagem
         self.desenho_frente = desenho_frente  # desenhado na frente (água, por exemplo)
         self.nome = nome
@@ -69,6 +87,7 @@ class Fase:
             [pygame.Rect(*p) for p in dados["plataformas"]],
             perigos=[pygame.Rect(*p) for p in dados.get("perigos", [])],
             checkpoints=[Checkpoint(pygame.Rect(*c)) for c in dados.get("checkpoints", [])],
+            inimigos=[LugarInimigo(i[0], pygame.Rect(*i[1:])) for i in dados.get("inimigos", [])],
         )
 
     @property

@@ -10,7 +10,9 @@ Combinado com o mapa:
 - camada de blocos com `frente = true` → desenhada na frente do personagem (água);
 - outras camadas de blocos → só desenho atrás do personagem (decoração);
 - camada de objetos "objetos": ponto "inicio" (pés), retângulo "chegada" e
-  objetos-bloco "checkpoint" (podem ser vários).
+  objetos-bloco "checkpoint" (podem ser vários) e retângulos de inimigo, com o
+  nome do tipo (ex.: "javali"). O retângulo do inimigo é o território dele:
+  o fundo do retângulo fica no chão, e a largura é até onde ele anda.
 """
 
 from pathlib import Path
@@ -18,7 +20,9 @@ from pathlib import Path
 import pygame
 import pytmx
 
-from jogo.fases.fase import Checkpoint, Fase
+from jogo.fases.fase import Checkpoint, Fase, LugarInimigo
+
+TIPOS_INIMIGO = {"javali"}  # nomes de objeto que viram inimigo
 
 RAIZ = Path(__file__).resolve().parents[2]
 PASTA_MAPAS = RAIZ / "assets" / "mapas"
@@ -78,6 +82,7 @@ def carregar(nome: str, escala: int) -> Fase:
 
     inicio = chegada = None
     checkpoints = []
+    inimigos = []
     for o in mapa.get_layer_by_name("objetos"):
         if o.name == "inicio":
             inicio = (round(o.x * escala), round(o.y * escala))
@@ -86,6 +91,8 @@ def carregar(nome: str, escala: int) -> Fase:
         elif o.name == "checkpoint":
             img = o.image and pygame.transform.scale(o.image, (tam, tam))
             checkpoints.append(Checkpoint(_escalar(o, escala), img))
+        elif o.name in TIPOS_INIMIGO:
+            inimigos.append(LugarInimigo(o.name, _escalar(o, escala)))
     if inicio is None or chegada is None:
         raise ValueError(f"{nome}.tmx precisa dos objetos 'inicio' e 'chegada'")
 
@@ -98,6 +105,7 @@ def carregar(nome: str, escala: int) -> Fase:
         superficies=achar_superficies(solidos, tam),
         perigos=perigos,
         checkpoints=checkpoints,
+        inimigos=inimigos,
         desenho=desenho,
         desenho_frente=desenho_frente,
         nome=mapa.properties.get("nome", nome),

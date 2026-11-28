@@ -1,0 +1,26 @@
+# Números dos inimigos. Mude aqui para ajustar, sem mexer no código.
+# Distâncias em pixels da tela (já com a escala 2 do mapa), tempos em segundos.
+# Onde cada inimigo fica é desenhado no Tiled (camada "objetos" do mapa).
+
+# Vale para todos os inimigos.
+[geral]
+gravidade = 1800                 # a mesma dos personagens
+velocidade_queda_max = 900
+tolerancia_pisao = 12            # pés até 12 px abaixo do topo do inimigo ainda contam como "em cima"
+quique = 480                     # pulinho ao pisar num inimigo (segurar o pulo deixa mais alto)
+tempo_derrotado = 0.4            # segundos mostrando o inimigo amassado antes de sumir
+
+# Javali da Floresta (decisão de 28/11): patrulha devagar, vira na borda e na parede;
+# ao ver o jogador na frente, para, treme (aviso) e investe em linha reta.
+[javali]
+largura = 44
+altura = 30                      # baixo o bastante para passar sob as plataformas de 1 bloco
+cor = [120, 72, 40]              # marrom provisório
+cor_aviso = [200, 60, 40]        # fica avermelhado enquanto avisa e investe
+velocidade_patrulha = 60
+velocidade_investida = 330       # mais rápido que o jogador (260): a saída é pular por cima
+distancia_visao = 300            # até onde ele enxerga para a frente
+altura_visao = 40                # quanto acima dele ainda enxerga (jogador pulando baixo)
+tempo_aviso = 0.6                # parado tremendo antes de investir
+tremor = 2                       # pixels de tremida durante o aviso
+tempo_descanso = 0.8             # parado, cansado, depois de investir

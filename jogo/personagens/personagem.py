@@ -85,6 +85,12 @@ class Personagem:
         self.no_chao = False
         return True
 
+    def quicar(self, forca: float) -> None:
+        """Pulinho para cima ao pisar num inimigo. Segurar o pulo deixa mais alto,
+        porque o corte do pulo (soltar o botão) vale aqui também."""
+        self.vel_y = -forca
+        self.no_chao = False
+
     def _andar(self, dt: float, comandos: Comandos) -> None:
         direcao = int(comandos.direita) - int(comandos.esquerda)
         if direcao:
