@@ -57,3 +57,18 @@ Esses quatro truques são usados em quase todo jogo de plataforma bom. É isso q
 2. A velocidade de andar está boa?
 3. Mantém MIT ou prefere outra licença?
 4. O que entra na Parte 2? Sugestões: a Dark e a troca entre as duas; a câmera seguindo numa fase maior que a tela; ou a primeira fase vinda do Tiled.
+
+---
+
+## Revisão 1 (28/11/2026): depois do primeiro teste de jogo
+**O que o Leonardo achou:** a altura do pulo está boa; o peso (cai rápido e sobe devagar segurando) ficou bom; o controle responde na hora. Ele teve dificuldade para alcançar uma plataforma e se preocupou com o jogador não conseguir voltar.
+
+**Diagnóstico:** o problema não era o pulo, era o desenho da fase. A plataforma da direita ficava 120 px acima do chão, e o pulo alcança cerca de 107 px, ou seja, era impossível. Outras duas estavam no limite.
+
+**O que mudou:**
+- `config/fase_teste.toml`: todas as subidas agora ficam entre 80 e 90 px.
+- `tests/test_fase.py`: novo teste `test_toda_plataforma_e_alcancavel`. Ele calcula o alcance do pulo a partir da config e reprova plataformas impossíveis. Com a fase antiga, o teste **reprovou** (como devia); com a nova, passa. Agora são **14 testes**.
+- `docs/04_fases_angel_and_dark.md`: novas seções "Regras de design das fases" e "Ideias em aberto" (pulo duplo).
+- `docs/03` e `docs/05`: o ataque 2 da Dark passou a ser "poderes da escuridão" (esferas negras e buracos negros que sugam inimigos), no lugar de "ataque de sombras".
+
+**O que não mudou, de propósito:** os números do pulo e do controle, porque o teste de jogo aprovou.
