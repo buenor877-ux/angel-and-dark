@@ -29,7 +29,9 @@ class Fundo:
         # A faixa (morros e árvores) vira uma imagem só, repetida na horizontal.
         pedacos = [bloco(i) for i in cfg["faixa"]]
         lado = t * esc
-        self.faixa = pygame.Surface((lado * len(pedacos), lado), pygame.SRCALPHA)
+        # Sem transparência: os blocos de fundo da Kenney são 100% opacos, e
+        # misturar transparência à toa custava ~3 ms por quadro no navegador.
+        self.faixa = pygame.Surface((lado * len(pedacos), lado))
         for i, p in enumerate(pedacos):
             self.faixa.blit(p, (i * lado, 0))
         # Céu e chão do fundo: cores tiradas dos próprios blocos da Kenney.

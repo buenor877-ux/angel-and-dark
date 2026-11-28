@@ -23,6 +23,24 @@ from jogo.fases.fase import Checkpoint, Fase
 RAIZ = Path(__file__).resolve().parents[2]
 PASTA_MAPAS = RAIZ / "assets" / "mapas"
 
+# Cor que significa "vazio" nas camadas do cenário. Não aparece na arte da Kenney
+# (conferido: nenhum pixel rosa e nenhum pixel semitransparente).
+COR_CHAVE = (255, 0, 255)
+
+
+def _camada_vazia(tamanho: tuple[int, int]) -> pygame.Surface:
+    """Imagem do tamanho do mundo, toda "vazia", pronta para receber blocos.
+
+    Por que não usar transparência por pixel (SRCALPHA): a cada quadro o navegador
+    misturava todos os pixels da tela, até os vazios, e cada camada custava ~16 ms
+    (o limite para 60 FPS é 16,7 ms). Pixel art não tem meio-transparente, então
+    uma cor-chave com RLE (que pula os trechos vazios de uma vez) dá o mesmo visual.
+    """
+    camada = pygame.Surface(tamanho)
+    camada.fill(COR_CHAVE)
+    camada.set_colorkey(COR_CHAVE, pygame.RLEACCEL)
+    return camada
+
 
 def carregar(nome: str, escala: int) -> Fase:
     mapa = pytmx.load_pygame(str(PASTA_MAPAS / f"{nome}.tmx"))
@@ -31,7 +49,7 @@ def carregar(nome: str, escala: int) -> Fase:
 
     solidos = [[False] * mapa.width for _ in range(mapa.height)]
     perigos = []
-    desenho = pygame.Surface(tamanho_mundo, pygame.SRCALPHA)
+    desenho = _camada_vazia(tamanho_mundo)
     desenho_frente = None
 
     for camada in mapa.visible_layers:
@@ -42,7 +60,7 @@ def carregar(nome: str, escala: int) -> Fase:
         e_perigo = bool(props.get("perigo", False))
         altura_dano = float(props.get("altura_dano", 1.0))
         if props.get("frente", False):
-            desenho_frente = desenho_frente or pygame.Surface(tamanho_mundo, pygame.SRCALPHA)
+            desenho_frente = desenho_frente or _camada_vazia(tamanho_mundo)
             destino = desenho_frente
         else:
             destino = desenho

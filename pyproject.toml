@@ -13,6 +13,7 @@ dependencies = [
 dev = [
     "ruff>=0.8",
     "pytest>=8",
+    "pygbag>=0.9.3",
 ]
 
 [tool.ruff]
