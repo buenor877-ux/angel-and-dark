@@ -14,7 +14,7 @@ Início da conversa: 26/11/2026.
 | Cenário 1 | **Teletransporte** | **Supervelocidade** |
 | Cenário 2 | **Super inteligência** | **Sombras** (usar as sombras para passar e acessar áreas) |
 | Ataque 1 | **Poder de luz** | **Raios negros** |
-| Ataque 2 | **Super força** | **Ataque de sombras** (manipular sombras para atacar) |
+| Ataque 2 | **Super força** | **Poderes da escuridão**: esferas negras, ou buracos negros que sugam os inimigos *(atualizado em 28/11; antes era "ataque de sombras")* |
 
 ## Como cada habilidade pode funcionar no jogo (sugestões para discutir)
 - **Teletransporte (Angel):** atravessar paredes finas, grades ou buracos grandes, aparecendo do outro lado.

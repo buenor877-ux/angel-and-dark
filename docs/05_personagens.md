@@ -36,7 +36,7 @@ Arquivo: `conceitos/angel_ficha_v1.png`. Tem: 3 poses (parada, correndo, ataque 
 - Combate **mais agressivo**, golpes de **mais impacto** que os da Angel.
 - **Roupas pretas, sobretudo preto longo, cabelo preto**, pele clara.
 - Referência de estilo: o visual "todo de preto com sobretudo" (tipo Neo, de Matrix), **sem óculos**.
-- Poderes: supervelocidade e sombras (cenário); raios negros e ataque de sombras (ataque).
+- Poderes: supervelocidade e sombras (cenário); raios negros e poderes da escuridão, que são esferas negras ou buracos negros que sugam os inimigos (ataque). *Atualizado em 28/11.*
 
 ### Para ficar original (e não parecer fantasia de Matrix)
 - As fotos enviadas são só referência de roupa: o personagem não deve se parecer com pessoas reais nem com o Neo.

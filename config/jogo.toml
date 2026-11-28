@@ -1,0 +1,12 @@
+# Configurações gerais do jogo.
+[janela]
+titulo = "Angel and Dark"
+largura = 960
+altura = 540
+fps = 60
+
+[cores]
+# Cores provisórias (R, G, B) até a arte entrar.
+fundo = [24, 28, 48]
+plataforma = [92, 98, 120]
+texto = [220, 220, 230]

@@ -88,3 +88,13 @@ Conceito gerado (26/11): `conceitos/kaothar_desperto_v1.png`. Asas de fogo, corr
 
 Prompt anterior (só guerra, sem Egito):
 > Crie uma arte conceitual de um chefe final de jogo de plataforma 2D: um deus da guerra colossal e original chamado Kaothar. Armadura de bronze escuro e preto, rachada, com energia vermelha de caos brilhando pelas rachaduras como lava. Capacete com chifres longos e sem rosto visível, apenas dois olhos em brasa. Correntes de ferro partidas presas aos pulsos e ao pescoço. Espadas, lanças e estandartes rasgados de exércitos derrotados cravados nas costas como troféus. Postura ameaçadora, braços abertos, olhando para baixo. Fundo de campo de batalha em chamas com céu vermelho e fumaça. Estilo pintura digital épica, alto contraste, sensação de poder esmagador. Personagem 100% original, sem semelhança com personagens de outros jogos, animes ou cartas.
+
+## Regras de design das fases (28/11/2026)
+Nasceram do primeiro teste de jogo da Parte 1: uma plataforma impossível deixava o jogador preso.
+1. **Nenhuma subida passa de 85% do pulo.** Com o pulo atual (cerca de 107 px), o limite é de uns 90 px. Os 15% de folga existem para o jogador não precisar de um pulo perfeito.
+2. **O vão horizontal também respeita os 85%** da distância de um pulo correndo (hoje, cerca de 150 px).
+3. **O jogador sempre consegue voltar.** Nenhum lugar deixa a pessoa presa, a não ser que seja de propósito (uma porta que fecha, por exemplo).
+4. As regras 1 e 2 são conferidas por um teste automático (`tests/test_fase.py`). Se mudar o pulo em `config/personagens.toml`, o teste recalcula o limite sozinho.
+
+## Ideias em aberto
+- **Pulo duplo** (sugestão do Leonardo, 28/11): ajudaria a voltar e a alcançar lugares altos. Ainda falta decidir se é uma mecânica de todos, um item ou um upgrade ganho no meio do jogo. Se entrar, as fases precisam ser desenhadas contando com ele.
