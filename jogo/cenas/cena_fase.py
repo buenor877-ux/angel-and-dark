@@ -1,27 +1,39 @@
-"""Cena de teste: o personagem escolhido numa fase maior que a tela, com câmera."""
+"""Cena de uma fase: o personagem escolhido numa fase feita no Tiled, com câmera e fundo."""
 
 import pygame
 
 from jogo.cenas.cena import Cena
+from jogo.fases import carregador_fases
 from jogo.fases.camera import Camera
-from jogo.fases.fase import Fase
+from jogo.fases.fundo import Fundo
 from jogo.nucleo import config
 from jogo.nucleo.controles import ler_comandos
 
 TEMPO_TELA_CONCLUIDA = 2.0  # segundos mostrando "Fase concluída!" antes de voltar
 
 
-class CenaTeste(Cena):
-    def __init__(self, jogo, classe_personagem):
+class CenaFase(Cena):
+    def __init__(self, jogo, classe_personagem, nome_fase: str, fase=None):
+        """`fase` pronta é opcional (os testes usam fases simples, sem Tiled)."""
         super().__init__(jogo)
         self.cores = {k: tuple(v) for k, v in jogo.cfg["cores"].items()}
         janela = jogo.cfg["janela"]
-        self.fase = Fase(config.carregar("fase_teste"))
-        self.personagem = classe_personagem.criar(self.fase.inicio)
-        self.camera = Camera(
-            jogo.cfg["camera"], (janela["largura"], janela["altura"]), self.fase.tamanho
-        )
+        tela = (janela["largura"], janela["altura"])
+
+        self.fase = fase or carregador_fases.carregar(nome_fase, jogo.cfg["mapa"]["escala"])
+        self.personagem = classe_personagem.criar((0, 0))
+        pes_x, pes_y = self.fase.inicio
+        self.personagem.inicio = (pes_x, pes_y - self.personagem.rect.height)
+        self.personagem.reiniciar()
+
+        self.camera = Camera(jogo.cfg["camera"], tela, self.fase.tamanho)
         self.camera.centralizar(self.personagem.rect)
+
+        cfg_fase = config.carregar("fases").get(nome_fase, {})
+        cam_y_max = self.fase.altura - tela[1]
+        self.fundo = Fundo(cfg_fase["fundo"], tela, cam_y_max) if "fundo" in cfg_fase else None
+        self.titulo = cfg_fase.get("nome", self.fase.nome or nome_fase)
+
         self.quedas = 0
         self.concluida = False
         self.tempo_concluida = 0.0
@@ -50,20 +62,25 @@ class CenaTeste(Cena):
         self.camera.atualizar(dt, p.rect, p.olhando, p.no_chao)
 
     def desenhar(self, tela: pygame.Surface) -> None:
-        tela.fill(self.cores["fundo"])
+        if self.fundo:
+            self.fundo.desenhar(tela, self.camera)
+        else:
+            tela.fill(self.cores["fundo"])
         self.fase.desenhar(tela, self.cores, self.camera)
         self.personagem.desenhar(tela, self.camera)
 
         # O texto fica fixo na tela: não usa a câmera.
         linhas = [
-            f"Fase de teste - {self.personagem.nome}",
+            f"{self.titulo} - {self.personagem.nome}",
             "Setas/A D: andar   Espaço/W: pular   Esc: trocar personagem",
             f"Estado: {self.personagem.estado.value}   Quedas: {self.quedas}",
         ]
         for i, texto in enumerate(linhas):
-            imagem = self.fonte.render(texto, True, self.cores["texto"])
+            imagem = self.fonte.render(texto, True, self.cores["texto_fase"], self.cores["caixa"])
             tela.blit(imagem, (12, 10 + i * 22))
 
         if self.concluida:
-            imagem = self.fonte_grande.render("Fase concluída!", True, self.cores["destaque"])
+            imagem = self.fonte_grande.render(
+                "Fase concluída!", True, self.cores["destaque"], self.cores["caixa"]
+            )
             tela.blit(imagem, imagem.get_rect(center=tela.get_rect().center))
