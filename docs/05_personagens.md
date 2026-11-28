@@ -61,3 +61,11 @@ Observações:
 
 ## Kaothar (chefe final)
 Ver `04_fases_angel_and_dark.md` e `conceitos/kaothar_conceito_v1.png`.
+
+## Decisão de movimento (28/11/2026)
+**Angel e Dark se movem igual** (mesma velocidade, mesmo pulo, mesmo peso). O que os diferencia são os poderes:
+- **Angel** passa por áreas e bloqueios com a **super inteligência** e o **teletransporte**.
+- **Dark** passa por áreas e bloqueios com a **supervelocidade** e as **sombras**.
+
+Motivo: é o mais simples, e as fases funcionam igual para os dois.
+**Pode ser revisto mais para frente**, para dar identidade a cada um, mas de forma equilibrada (diferença pequena, de uns 10 a 15%, para a supervelocidade da Dark continuar especial). Se for revisto, basta escrever o número diferente no bloco do personagem em `config/personagens.toml`. A regra de alcance das fases passa a usar o pulo de quem alcança menos, e o teste já faz essa conta.

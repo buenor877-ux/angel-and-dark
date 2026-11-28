@@ -7,7 +7,14 @@ from enum import Enum
 
 import pygame
 
+from jogo.nucleo import config
 from jogo.nucleo.controles import Comandos
+
+
+def carregar_config(chave: str) -> dict:
+    """Junta o bloco [movimento] com o bloco do personagem; o do personagem vence."""
+    dados = config.carregar("personagens")
+    return {**dados["movimento"], **dados[chave]}
 
 
 class Estado(Enum):
@@ -27,12 +34,20 @@ def _aproximar(valor: float, alvo: float, passo: float) -> float:
 
 
 class Personagem:
-    def __init__(self, config: dict, posicao: tuple[float, float]):
-        self.cfg = config
-        self.cor = tuple(config["cor"])
-        self.rect = pygame.Rect(0, 0, config["largura"], config["altura"])
+    nome = "Personagem"
+    chave = ""  # nome do bloco em config/personagens.toml
+
+    def __init__(self, cfg: dict, posicao: tuple[float, float]):
+        self.cfg = cfg
+        self.cor = tuple(cfg["cor"])
+        self.rect = pygame.Rect(0, 0, cfg["largura"], cfg["altura"])
         self.inicio = posicao
         self.reiniciar()
+
+    @classmethod
+    def criar(cls, posicao: tuple[float, float]) -> "Personagem":
+        """Cria o personagem já com a config dele."""
+        return cls(carregar_config(cls.chave), posicao)
 
     def reiniciar(self) -> None:
         """Volta ao ponto inicial, parado."""

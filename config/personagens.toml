@@ -1,10 +1,12 @@
 # Números dos personagens. Mude aqui para ajustar o controle, sem mexer no código.
 # Distâncias em pixels, tempos em segundos.
 
-[angel]
+# Movimento compartilhado: Angel e Dark se movem igual (decisão de 28/11).
+# Para dar identidade a um deles no futuro, repita o número no bloco dele:
+# o valor do bloco do personagem vence o daqui. Ex.: em [dark], velocidade = 290
+[movimento]
 largura = 32
 altura = 48
-cor = [245, 245, 255]            # quadrado branco provisório
 
 velocidade = 260                 # pixels por segundo andando
 aceleracao = 2200                # quão rápido chega na velocidade máxima
@@ -17,3 +19,9 @@ corte_pulo = 0.45                # soltar o botão cedo reduz a subida (0 a 1)
 
 tempo_coiote = 0.10              # ainda pode pular logo depois de sair da borda
 tempo_buffer_pulo = 0.12         # aperto de pulo um pouco antes de tocar o chão ainda vale
+
+[angel]
+cor = [245, 245, 255]            # branco provisório
+
+[dark]
+cor = [140, 70, 210]             # roxo provisório (preto sumiria no fundo escuro)

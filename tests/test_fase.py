@@ -4,11 +4,12 @@ import pygame
 
 from jogo.fases.fase import Fase
 from jogo.nucleo import config
+from jogo.personagens.personagem import carregar_config
 
 
 def test_configs_carregam():
     assert config.carregar("jogo")["janela"]["fps"] == 60
-    assert "angel" in config.carregar("personagens")
+    assert {"movimento", "angel", "dark"} <= config.carregar("personagens").keys()
 
 
 def test_fase_teste_tem_chao_e_inicio_valido():
@@ -23,11 +24,15 @@ MARGEM = 0.85  # regra de design: usar no máximo 85% do pulo
 
 def alcance_do_pulo():
     """Altura e distância máximas de um pulo, calculadas pela física da config."""
-    angel = config.carregar("personagens")["angel"]
-    v, g = angel["forca_pulo"], angel["gravidade"]
-    altura = v**2 / (2 * g)
-    distancia = (2 * v / g) * angel["velocidade"]  # tempo no ar × velocidade
-    return altura * MARGEM, distancia * MARGEM
+    alcances = []
+    for chave in ("angel", "dark"):
+        cfg = carregar_config(chave)
+        v, g = cfg["forca_pulo"], cfg["gravidade"]
+        altura = v**2 / (2 * g)
+        distancia = (2 * v / g) * cfg["velocidade"]  # tempo no ar × velocidade
+        alcances.append((altura * MARGEM, distancia * MARGEM))
+    # A fase precisa funcionar para os dois: vale o pulo de quem alcança menos.
+    return min(a for a, _ in alcances), min(d for _, d in alcances)
 
 
 def vao_horizontal(a: pygame.Rect, b: pygame.Rect) -> int:
