@@ -79,3 +79,20 @@ def test_desce_ao_cair_perto_da_borda_de_baixo():
     y0 = cam.y
     rodar(cam, pers(1400, 1000), no_chao=False, quadros=60)  # caindo, sem pisar
     assert cam.y > y0 + 100
+
+
+def test_acompanha_logo_ao_cair_abaixo_do_ultimo_chao():
+    """Descer de uma plataforma: a câmera desce junto, sem esperar a borda da tela."""
+    cam = camera()
+    cam.centralizar(pers(1400, 680))
+    y0 = cam.y
+    for passo in range(1, 31):  # meio segundo caindo, 4 px por quadro
+        cam.atualizar(DT, pers(1400, 680 + passo * 4), 1, no_chao=False)
+    assert cam.y > y0 + 60
+    pes_na_tela = pers(1400, 680 + 120).bottom - cam.y
+    assert pes_na_tela < TELA[1] * 0.80  # sobra espaço para ver onde vai cair
+
+
+def test_desce_mais_rapido_do_que_sobe():
+    cfg = config.carregar("jogo")["camera"]
+    assert cfg["suavidade_descida"] > cfg["suavidade_y"]

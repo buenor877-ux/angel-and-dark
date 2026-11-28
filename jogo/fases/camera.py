@@ -49,16 +49,22 @@ class Camera:
         self._limitar()
 
     def atualizar(self, dt: float, rect: pygame.Rect, olhando: int, no_chao: bool) -> None:
-        # Vertical: a referência só muda ao pisar, ou se o personagem for sair da tela.
-        if no_chao:
+        # Vertical: a referência muda ao pisar, ao cair abaixo do último chão
+        # (o jogador precisa ver onde vai cair) ou se o personagem for sair da tela.
+        # Num pulo comum ele volta ao mesmo chão, então a câmera fica parada.
+        if no_chao or rect.bottom > self.altura_chao:
             self.altura_chao = float(rect.bottom)
         topo_seguro = self.y + self.altura * self.cfg["margem_topo"]
         base_segura = self.y + self.altura * self.cfg["margem_base"]
         if rect.bottom > base_segura or rect.top < topo_seguro:
             self.altura_chao = float(rect.bottom)
 
+        # Descer é mais urgente que subir: usa uma suavidade própria, mais rápida.
+        alvo_y = self._alvo_y()
+        suavidade_y = self.cfg["suavidade_descida"] if alvo_y > self.y else self.cfg["suavidade_y"]
+
         self.x = _suavizar(self.x, self._alvo_x(rect, olhando), self.cfg["suavidade_x"], dt)
-        self.y = _suavizar(self.y, self._alvo_y(), self.cfg["suavidade_y"], dt)
+        self.y = _suavizar(self.y, alvo_y, suavidade_y, dt)
         self._limitar()
 
     # ---------- desenho ----------

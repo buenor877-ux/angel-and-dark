@@ -75,3 +75,18 @@ Também criei um teste para **o próprio teste**: ele coloca de propósito uma p
 1. A câmera está confortável? Rápida, lenta, olha demais ou de menos para a frente?
 2. Na escada, a câmera subir só ao pisar ficou bom?
 3. Parte 4: **primeira fase no Tiled, com um pacote de arte pronto**, o começo da Floresta. Vai ser preciso baixar um pacote gratuito (Kenney, por exemplo), e eu peço a sua permissão antes.
+
+---
+
+## Revisão 1 (28/11/2026): depois do teste de jogo
+**O que o Leonardo achou:** gostou ("pegada de Mario"), mas na descida até a bandeira a câmera demorava para acompanhar quem cai ou desce.
+
+**Diagnóstico com números:** simulei a descida real (do caminho do alto até o chão da bandeira) e medi onde os pés ficam na tela. Antes, chegavam a **90%** da altura da tela, e sobravam só 52 px para ver onde ia cair. A causa: a câmera tratava subir e descer do mesmo jeito, esperando o personagem pisar ou chegar a 85% da tela.
+
+**Correção** (`jogo/fases/camera.py`):
+1. **Cair abaixo do último chão faz a câmera acompanhar na hora.** O pulo comum continua sem mexer a câmera, porque nele o personagem volta ao mesmo chão.
+2. **Descer usa uma suavidade própria, mais rápida:** `suavidade_descida = 9.0` contra `suavidade_y = 4.0`, em `config/jogo.toml`.
+
+**Resultado:** na descida, os pés agora ficam **entre 70% e 78%** da tela (antes, até 90%). No chão final eles ficam a 93%, mas ali a câmera está encostada na borda de baixo do mundo, e não existe nada abaixo para mostrar. O começo da fase é igual.
+
+**Testes:** 2 novos (agora são **37**). O principal, `test_acompanha_logo_ao_cair_abaixo_do_ultimo_chao`, **reprova com a câmera antiga e passa com a nova**. Conferi as duas coisas.
