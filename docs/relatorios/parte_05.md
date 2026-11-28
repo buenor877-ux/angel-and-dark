@@ -62,3 +62,28 @@ Data: 28/11/2026 | Branch: `parte-05-vida`
 1. O empurrão está forte ou fraco? O piscar está claro?
 2. Os espinhos estão bem colocados? Difícil demais ou fácil demais?
 3. Parte 6: sugestão de **primeiro inimigo da Floresta** (o javali), agora que já existe dano e vida.
+
+---
+
+## Revisão 1 (28/11/2026): depois do teste de jogo
+**O que o Leonardo achou:** ficou legal, mas a fase é curta para 2 checkpoints. Ele quer fases maiores e, ao perder as 3 vidas, uma mensagem "Game Over" que volte ao início.
+
+**Decisões dele:**
+- Floresta 1 com **6 telas** (o dobro);
+- **1 checkpoint**, no meio;
+- Game Over **recomeça a mesma fase do início**, com o mesmo personagem.
+
+**O que mudou:**
+- **`assets/mapas/01_floresta.tmx` passou de 80 para 160 blocos de largura** (5760 px).
+  - A primeira metade continua igual.
+  - A segunda metade é nova: buraco com água → escada até um segundo mirante → chão alto com espinhos → buraco com água → plataforma no alto → descida para a reta final, com um caminho de cima opcional e a bandeira no fim.
+  - No total: **12 espinhos**, **4 buracos com água** e **1 checkpoint**, na coluna 80, o meio exato.
+  - Antes de redesenhar, conferi que o mapa não tinha edições suas no Tiled (era idêntico ao gerado), para não apagar trabalho seu.
+- **Game Over:** o texto mudou de "Fim de jogo" para **"Game Over"**. Depois de 2 s, o jogo recomeça a fase (`iniciar_fase`) em vez de voltar para a escolha. Os checkpoints voltam a ficar apagados, porque a fase é carregada de novo.
+- **"Fase concluída!"** continua voltando para a escolha, como antes.
+
+**Testes:** os mesmos 59, atualizados. Agora conferem as 6 telas, que o checkpoint único fica **perto do meio** (a até 10% da largura) e que o Game Over **recomeça a fase com o mesmo personagem**. O teste de alcance aprovou a fase nova inteira, com todos os lugares e a bandeira alcançáveis, sem precisar de ajuste.
+
+**Jogo rodado:** conferi as imagens da segunda metade, do Game Over (com "Vidas: 0") e do recomeço (de volta ao início, com 3 vidas).
+
+**Nova pendência:** o cenário inteiro é desenhado numa imagem só. Com 6 telas, isso dá cerca de 25 MB de memória, mais 25 MB da camada da água. No PC não faz diferença, mas no navegador pode pesar. Se pesar, a solução é desenhar em pedaços, e isso fica para quando testarmos o pygbag.

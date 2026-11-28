@@ -12,7 +12,7 @@ from jogo.interface.hud import Hud
 from jogo.nucleo import config
 from jogo.nucleo.controles import ler_comandos
 
-TEMPO_MENSAGEM = 2.0  # segundos mostrando "Fase concluída!" ou "Fim de jogo"
+TEMPO_MENSAGEM = 2.0  # segundos mostrando "Fase concluída!" ou "Game Over"
 AJUDA = "Setas/A D: andar   Espaço/W: pular   Esc: trocar personagem"
 
 
@@ -71,7 +71,11 @@ class CenaFase(Cena):
             antes = self.tempo_mensagem
             self.tempo_mensagem += dt
             if antes < TEMPO_MENSAGEM <= self.tempo_mensagem:  # só no quadro em que o tempo acaba
-                self.jogo.ir_para_escolha(type(self.personagem))
+                if self.estado == EstadoFase.FIM_DE_JOGO:
+                    # Game Over: recomeça a mesma fase do início (decisão de 28/11).
+                    self.jogo.iniciar_fase(type(self.personagem))
+                else:
+                    self.jogo.ir_para_escolha(type(self.personagem))
             return
 
         p = self.personagem
@@ -105,7 +109,7 @@ class CenaFase(Cena):
             tela, self.personagem.vida, f"{self.titulo} - {self.personagem.nome}", AJUDA
         )
 
-        mensagens = {EstadoFase.CONCLUIDA: "Fase concluída!", EstadoFase.FIM_DE_JOGO: "Fim de jogo"}
+        mensagens = {EstadoFase.CONCLUIDA: "Fase concluída!", EstadoFase.FIM_DE_JOGO: "Game Over"}
         if self.estado in mensagens:
             imagem = self.fonte_grande.render(
                 mensagens[self.estado], True, self.cores["destaque"], self.cores["caixa"]

@@ -117,6 +117,9 @@ class JogoFalso:
     def ir_para_escolha(self, ultimo=None):
         self.pedidos.append(("escolha", ultimo))
 
+    def iniciar_fase(self, classe):
+        self.pedidos.append(("fase", classe))
+
 
 def fase_simples():
     """Chão comprido, um espinho e um checkpoint no meio."""
@@ -180,7 +183,7 @@ def test_passar_no_checkpoint_muda_o_ponto_de_volta():
     assert abs(c.personagem.rect.centerx - c.fase.checkpoints[0].pes[0]) < 5
 
 
-def test_perder_as_3_vidas_mostra_fim_de_jogo_e_volta_a_escolha():
+def test_perder_as_3_vidas_mostra_game_over_e_recomeca_a_fase():
     c = cena()
     for _ in range(3):
         c.personagem.y = 2000.0
@@ -189,7 +192,7 @@ def test_perder_as_3_vidas_mostra_fim_de_jogo_e_volta_a_escolha():
     assert c.estado == EstadoFase.FIM_DE_JOGO
     assert c.jogo.pedidos == []
     rodar(c, 130)  # pouco mais de 2 segundos
-    assert c.jogo.pedidos == [("escolha", Angel)]
+    assert c.jogo.pedidos == [("fase", Angel)]  # recomeça a mesma fase, mesmo personagem
 
 
 def test_fase_de_teste_desenha_com_perigo_e_checkpoint():
