@@ -10,4 +10,13 @@ fps = 60
 fundo = [24, 28, 48]
 plataforma = [92, 98, 120]
 texto = [220, 220, 230]
-destaque = [255, 210, 90]        # moldura do personagem selecionado
+destaque = [255, 210, 90]        # moldura do personagem selecionado e bandeira
+
+[camera]
+suavidade_x = 6.0                # maior = acompanha mais rápido na horizontal
+suavidade_y = 4.0                # maior = sobe mais rápido
+suavidade_descida = 9.0          # maior = desce mais rápido (cair pede mais urgência)
+olhar_frente = 120               # pixels a mais mostrados para o lado em que o personagem anda
+altura_personagem = 0.70         # onde ficam os pés na tela (0 = topo, 1 = base)
+margem_topo = 0.15               # se o personagem passar disto para cima, a câmera sobe
+margem_base = 0.85               # se passar disto para baixo, a câmera desce

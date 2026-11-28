@@ -58,7 +58,7 @@ class CenaEscolha(Cena):
         self._texto(
             tela,
             self.fonte,
-            "Setas/A D: escolher   Enter/Espaco: jogar   Esc: sair",
+            "Setas/A D: escolher   Enter/Espaço: jogar   Esc: sair",
             (largura // 2, altura - 50),
         )
 

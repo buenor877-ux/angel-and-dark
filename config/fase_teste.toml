@@ -1,14 +1,32 @@
-# Fase de teste da Parte 1. Nas próximas partes, as fases virão do Tiled (assets/mapas/).
-inicio = [80, 380]               # onde a Angel começa e volta ao cair
+# Fase de teste. Nas próximas partes, as fases virão do Tiled (assets/mapas/).
+# Regra de design: nenhuma subida passa de 85% do pulo (~90 px) e nenhum vão
+# passa de 85% da distância de um pulo correndo (~150 px). O teste confere.
+
+tamanho = [2880, 1080]           # 3 telas de largura, 2 de altura
+inicio = [80, 980]               # onde o personagem começa e volta ao cair
+chegada = [2790, 960, 24, 80]    # bandeira: [x, y, largura, altura]
 
 # Cada plataforma: [x, y, largura, altura]
-# Regra de design: nenhuma subida passa de 85% do pulo (~90 px). Ver docs/04_fases_angel_and_dark.md.
 plataformas = [
-    [0, 500, 560, 40],           # chão (esquerda)
-    [680, 500, 280, 40],         # chão (direita): o espaço entre os dois é um buraco
-    [180, 410, 160, 20],         # 90 px acima do chão
-    [20, 320, 120, 20],          # 90 px acima da anterior
-    [420, 330, 140, 20],         # 80 px acima da de x=180
-    [640, 250, 160, 20],         # 80 px acima da anterior
-    [820, 410, 140, 20],         # 90 px acima do chão da direita (antes eram 120: impossível)
+    # --- chão, com dois buracos ---
+    [0, 1040, 900, 40],
+    [1020, 1040, 700, 40],       # buraco de 120 px antes deste pedaço
+    [1860, 1040, 1020, 40],      # buraco de 140 px antes deste pedaço
+
+    # --- tela 1: aquecimento ---
+    [300, 950, 160, 20],
+    [520, 860, 160, 20],
+    [760, 950, 140, 20],
+
+    # --- tela 2: subida em escada (a câmera sobe junto) ---
+    [1150, 950, 160, 20],
+    [1360, 860, 140, 20],
+    [1550, 770, 140, 20],
+    [1740, 680, 240, 20],
+    [1800, 590, 120, 20],        # mirante: o ponto mais alto
+
+    # --- tela 3: caminho de cima e descida até a bandeira ---
+    [2060, 680, 300, 20],
+    [2440, 770, 140, 20],
+    [2620, 860, 140, 20],
 ]
