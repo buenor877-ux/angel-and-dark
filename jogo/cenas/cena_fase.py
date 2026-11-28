@@ -1,9 +1,10 @@
-"""Cena de uma fase: personagem, câmera, fundo, perigos, checkpoints, vidas e chegada."""
+"""Cena de uma fase: personagem, inimigos, câmera, fundo, perigos, checkpoints, vidas e chegada."""
 
 from enum import Enum
 
 import pygame
 
+from jogo import inimigos
 from jogo.cenas.cena import Cena
 from jogo.fases import carregador_fases
 from jogo.fases.camera import Camera
@@ -35,6 +36,7 @@ class CenaFase(Cena):
         self.fase = fase or carregador_fases.carregar(nome_fase, jogo.cfg["mapa"]["escala"])
         self.personagem = classe_personagem.criar((0, 0))
         self.camera = Camera(jogo.cfg["camera"], tela, self.fase.tamanho)
+        self.inimigos = [inimigos.criar(i.tipo, i.area) for i in self.fase.inimigos]
         self._colocar_personagem(self.fase.inicio)
 
         cfg_fase = config.carregar("fases").get(nome_fase, {})
@@ -59,6 +61,8 @@ class CenaFase(Cena):
     def _perder_vida(self) -> None:
         if self.personagem.vida.perder_vida():
             self._colocar_personagem(self.fase.ponto_de_volta())
+            for inimigo in self.inimigos:  # voltam todos, até os derrotados
+                inimigo.reiniciar()
         else:
             self.estado = EstadoFase.FIM_DE_JOGO
 
@@ -79,8 +83,10 @@ class CenaFase(Cena):
             return
 
         p = self.personagem
+        pes_antes = p.rect.bottom  # para saber se ele veio de cima ao encostar num inimigo
         p.atualizar(dt, ler_comandos(eventos), self.fase.solidos)
         self.fase.ativar_checkpoints(p.rect)
+        self._inimigos(dt, pes_antes)
 
         perigo = self.fase.perigo_tocado(p.rect)
         if perigo is not None:
@@ -93,6 +99,20 @@ class CenaFase(Cena):
         else:
             self.camera.atualizar(dt, p.rect, p.olhando, p.no_chao)
 
+    def _inimigos(self, dt: float, pes_antes: float) -> None:
+        """Move os inimigos e resolve o contato: pisão derrota, encostar de lado machuca."""
+        p = self.personagem
+        cfg_geral = None
+        for inimigo in self.inimigos:
+            inimigo.atualizar(dt, self.fase.solidos, p.rect)
+            if inimigo.foi_pisado(pes_antes, p.vel_y, p.rect):
+                inimigo.derrotar()
+                cfg_geral = inimigo.cfg
+            elif inimigo.machuca(p.rect):
+                p.levar_dano(inimigo.rect.centerx)
+        if cfg_geral is not None:  # pulinho uma vez só, mesmo pisando em dois
+            p.quicar(cfg_geral["quique"])
+
     # ---------- desenho ----------
 
     def desenhar(self, tela: pygame.Surface) -> None:
@@ -101,6 +121,8 @@ class CenaFase(Cena):
         else:
             tela.fill(self.cores["fundo"])
         self.fase.desenhar(tela, self.cores, self.camera)
+        for inimigo in self.inimigos:
+            inimigo.desenhar(tela, self.camera)
         self.personagem.desenhar(tela, self.camera)
         self.fase.desenhar_frente(tela, self.camera)
 
